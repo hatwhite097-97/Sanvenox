@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanexno — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --c:#00f0ff;--cg:rgba(0,240,255,.35);--cd:#0a1628;
+  --g:#c0c0c0;--pur:#7b2ff7;--red:#ff0040;--grn:#00ff88;
+  --bg:#05080f;--txt:#e0e0e0;
+  --glass:rgba(255,255,255,.04);--gb:rgba(255,255,255,.09);
+}
+body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--c);border-radius:10px;}
+
+/* LOGIN SCREEN */
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;}
+#login-screen.hidden{display:none;}
+.ls-box{background:linear-gradient(135deg,#0a1628,#1a1a2e);border:1px solid var(--gb);border-radius:20px;padding:40px;width:380px;max-width:92%;}
+.ls-logo{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--c),var(--pur));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;margin-bottom:4px;}
+.ls-sub{font-size:11px;opacity:.4;letter-spacing:3px;margin-bottom:28px;}
+.fld{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--gb);border-radius:9px;padding:12px 15px;color:var(--txt);font-family:'Rajdhani',sans-serif;font-size:14px;transition:.3s;margin-bottom:12px;}
+.fld:focus{outline:none;border-color:var(--c);}
+.btn{padding:9px 20px;border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:.3s;letter-spacing:1px;}
+.btn-c{background:var(--c);color:var(--bg);}
+.btn-c:hover{box-shadow:0 0 25px var(--cg);transform:translateY(-2px);}
+.btn-r{background:var(--red);color:#fff;}
+.btn-r:hover{box-shadow:0 0 20px rgba(255,0,64,.3);}
+.btn-g{background:rgba(0,255,136,.15);border:1px solid var(--grn);color:var(--grn);}
+.btn-g:hover{background:rgba(0,255,136,.25);}
+.btn-p{background:var(--pur);color:#fff;}
+.btn-p:hover{box-shadow:0 0 20px rgba(123,47,247,.35);}
+.btn-out{background:transparent;border:1px solid var(--c);color:var(--c);}
+.btn-out:hover{background:var(--c);color:var(--bg);}
+.btn-sm{padding:5px 12px;font-size:11px;}
+.ls-err{color:var(--red);font-size:12px;margin-top:8px;display:none;}
+
+/* SIDEBAR */
+.sidebar{width:220px;min-height:100vh;background:rgba(0,0,0,.4);border-right:1px solid var(--gb);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;}
+.sb-logo{padding:20px 18px 15px;border-bottom:1px solid var(--gb);}
+.sb-logo-txt{font-family:'Orbitron',monospace;font-size:15px;font-weight:900;background:linear-gradient(135deg,var(--c),var(--pur));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
+.sb-logo-sub{font-size:9px;opacity:.4;letter-spacing:3px;}
+.sb-menu{flex:1;padding:12px 0;}
+.sb-item{padding:11px 18px;cursor:pointer;transition:.3s;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;letter-spacing:.5px;border-left:3px solid transparent;}
+.sb-item:hover{background:rgba(0,240,255,.05);color:var(--c);}
+.sb-item.active{background:rgba(0,240,255,.08);color:var(--c);border-left-color:var(--c);}
+.sb-item .sbi{font-size:16px;width:20px;text-align:center;}
+.sb-section{padding:6px 18px 3px;font-size:9px;letter-spacing:2px;opacity:.35;margin-top:8px;}
+.sb-bottom{padding:14px 18px;border-top:1px solid var(--gb);}
+.sb-admin{font-size:12px;opacity:.5;}
+.sb-admin strong{color:var(--c);opacity:1;}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;padding:25px;min-height:100vh;}
+.page-title{font-family:'Orbitron',monospace;font-size:1.5rem;color:var(--c);margin-bottom:4px;letter-spacing:2px;}
+.page-sub{font-size:12px;opacity:.45;margin-bottom:22px;letter-spacing:1px;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* CARDS */
+.card{background:var(--glass);border:1px solid var(--gb);border-radius:14px;padding:20px;margin-bottom:18px;}
+.card-title{font-family:'Orbitron',monospace;font-size:12px;color:var(--c);margin-bottom:14px;letter-spacing:2px;display:flex;align-items:center;gap:8px;}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:22px;}
+.stat-card{background:var(--glass);border:1px solid var(--gb);border-radius:12px;padding:18px;text-align:center;transition:.3s;}
+.stat-card:hover{border-color:var(--c);}
+.stn{font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:700;color:var(--c);}
+.stl{font-size:11px;opacity:.45;letter-spacing:1px;margin-top:3px;}
+.stc{font-size:10px;margin-top:5px;padding:2px 8px;border-radius:10px;display:inline-block;}
+.stc.up{background:rgba(0,255,136,.1);color:var(--grn);}
+.stc.dn{background:rgba(255,0,64,.1);color:var(--red);}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:rgba(0,240,255,.06);padding:10px 12px;text-align:left;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:var(--c);border-bottom:1px solid var(--gb);}
+td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.badge{display:inline-block;padding:3px 9px;border-radius:10px;font-size:10px;font-weight:600;letter-spacing:.5px;}
+.badge-active{background:rgba(0,255,136,.12);color:var(--grn);border:1px solid rgba(0,255,136,.3);}
+.badge-blocked{background:rgba(255,0,64,.12);color:var(--red);border:1px solid rgba(255,0,64,.3);}
+.badge-admin{background:rgba(0,240,255,.12);color:var(--c);border:1px solid rgba(0,240,255,.3);}
+.badge-user{background:rgba(192,192,192,.1);color:var(--g);border:1px solid rgba(192,192,192,.25);}
+.act-btns{display:flex;gap:5px;flex-wrap:wrap;}
+
+/* TOOL FORM */
+.tool-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:600px){.tool-form-grid{grid-template-columns:1fr;}}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group label{font-size:11px;opacity:.5;letter-spacing:1px;}
+.form-group textarea.fld{min-height:80px;resize:vertical;}
+
+/* NOTIF */
+.notif-item{background:rgba(0,0,0,.3);border:1px solid var(--gb);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.notif-txt{flex:1;font-size:13px;}
+.notif-meta{font-size:11px;opacity:.4;}
+
+/* LOGS */
+.log-item{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.04);font-family:'Share Tech Mono',monospace;font-size:11px;display:flex;gap:12px;}
+.log-time{color:var(--pur);white-space:nowrap;}
+.log-type{width:60px;font-size:10px;}
+.log-type.info{color:var(--c);}
+.log-type.warn{color:#ffaa00;}
+.log-type.err{color:var(--red);}
+.log-type.ok{color:var(--grn);}
+.log-msg{color:var(--g);}
+
+/* MODAL */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);z-index:9999;align-items:center;justify-content:center;}
+.modal-ov.active{display:flex;}
+.modal-box{background:linear-gradient(135deg,#0a1628,#1a1a2e);border:1px solid var(--gb);border-radius:18px;padding:30px;width:460px;max-width:94%;position:relative;max-height:90vh;overflow-y:auto;animation:min .3s ease;}
+@keyframes min{from{opacity:0;transform:scale(.92)translateY(10px);}to{opacity:1;transform:scale(1)translateY(0);}}
+.modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--txt);font-size:22px;cursor:pointer;opacity:.5;}
+.modal-close:hover{opacity:1;}
+.modal-title{font-family:'Orbitron',monospace;font-size:16px;color:var(--c);margin-bottom:16px;letter-spacing:2px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:linear-gradient(135deg,#0a1628,#1a1a2e);border:1px solid var(--c);border-radius:12px;padding:12px 18px;font-size:13px;z-index:99999;animation:tin .3s ease;max-width:300px;}
+.toast.err{border-color:var(--red);}
+.toast.ok{border-color:var(--grn);}
+@keyframes tin{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+
+/* IMAGE PREVIEW */
+.img-preview{width:100%;max-height:150px;object-fit:cover;border-radius:8px;margin-top:8px;display:none;}
+
+/* DATE DISPLAY */
+.date-strip{background:var(--glass);border:1px solid var(--gb);border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.date-big{font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--c);}
+.date-small{font-size:12px;opacity:.5;}
+
+/* RESPONSIVE */
+@media(max-width:750px){.sidebar{transform:translateX(-100%);transition:.3s;}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}.mob-menu-btn{display:flex!important;}}
+.mob-menu-btn{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--c);color:var(--bg);border:none;border-radius:8px;padding:8px 12px;font-size:18px;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="ls-box">
+    <div class="ls-logo">SANEXNO</div>
+    <div class="ls-sub">ADMIN PANEL — SECURE ACCESS</div>
+    <input class="fld" type="email" id="adm-email" placeholder="Admin Email" onkeydown="if(event.key==='Enter')adminLogin()">
+    <input class="fld" type="password" id="adm-pass" placeholder="Admin Password" onkeydown="if(event.key==='Enter')adminLogin()">
+    <button class="btn btn-c" style="width:100%;padding:13px;font-size:14px;letter-spacing:2px;" onclick="adminLogin()">ACCESS PANEL</button>
+    <div class="ls-err" id="ls-err">Credentials si sahihi. Jaribu tena.</div>
+    <div style="margin-top:14px;font-size:11px;opacity:.35;text-align:center;">Default: admin@sanexno.com / Sanex@Admin2025</div>
+  </div>
+</div>
+
+<!-- MOB MENU -->
+<button class="mob-menu-btn" onclick="toggleSidebar()">☰</button>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-txt">SANEXNO</div>
+    <div class="sb-logo-sub">ADMIN PANEL</div>
+  </div>
+  <div class="sb-menu">
+    <div class="sb-section">OVERVIEW</div>
+    <div class="sb-item active" onclick="showTab('dashboard',this)"><span class="sbi">📊</span> Dashboard</div>
+    <div class="sb-item" onclick="showTab('users',this)"><span class="sbi">👥</span> Users</div>
+    <div class="sb-item" onclick="showTab('posts',this)"><span class="sbi">📰</span> Posts</div>
+    <div class="sb-section">CONTENT</div>
+    <div class="sb-item" onclick="showTab('tools',this)"><span class="sbi">🛠️</span> Tools</div>
+    <div class="sb-item" onclick="showTab('notify',this)"><span class="sbi">🔔</span> Notifications</div>
+    <div class="sb-section">SYSTEM</div>
+    <div class="sb-item" onclick="showTab('logs',this)"><span class="sbi">📋</span> Activity Logs</div>
+    <div class="sb-item" onclick="showTab('settings',this)"><span class="sbi">⚙️</span> Settings</div>
+  </div>
+  <div class="sb-bottom">
+    <div class="sb-admin">Logged in as<br><strong id="sb-admin-name">Admin</strong></div>
+    <button class="btn btn-out" style="width:100%;margin-top:10px;font-size:12px;padding:7px;" onclick="adminLogout()">LOGOUT</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main" id="main-panel" style="display:none;">
+
+  <!-- DASHBOARD -->
+  <div class="tab-content active" id="tab-dashboard">
+    <div class="page-title">[ DASHBOARD ]</div>
+    <div class="page-sub">MUHTASARI WA SANEXNO PLATFORM</div>
+    <div class="date-strip">
+      <div>
+        <div class="date-big" id="dash-date"></div>
+        <div class="date-small" id="dash-time"></div>
+      </div>
+      <div style="font-size:12px;opacity:.5;">Platform Status: <span style="color:var(--grn);">● ONLINE</span></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stn" id="st-users">0</div><div class="stl">TOTAL USERS</div><div class="stc up">● Active</div></div>
+      <div class="stat-card"><div class="stn" id="st-blocked">0</div><div class="stl">BLOCKED</div><div class="stc dn">● Restricted</div></div>
+      <div class="stat-card"><div class="stn" id="st-posts">0</div><div class="stl">TOTAL POSTS</div><div class="stc up">● Live</div></div>
+      <div class="stat-card"><div class="stn" id="st-tools">0</div><div class="stl">TOOLS</div><div class="stc up">● Available</div></div>
+      <div class="stat-card"><div class="stn" id="st-notifs">0</div><div class="stl">NOTIFICATIONS</div><div class="stc up">● Sent</div></div>
+    </div>
+    <!-- RECENT ACTIVITY -->
+    <div class="card">
+      <div class="card-title">📋 Recent Activity</div>
+      <div id="recent-activity" style="font-size:13px;"></div>
+    </div>
+    <!-- QUICK ACTIONS -->
+    <div class="card">
+      <div class="card-title">⚡ Quick Actions</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-c" onclick="showTab('users',document.querySelector('[onclick*=users]'))">Manage Users</button>
+        <button class="btn btn-p" onclick="showTab('tools',document.querySelector('[onclick*=tools]'))">Add Tool</button>
+        <button class="btn" style="background:rgba(255,170,0,.15);border:1px solid #ffaa00;color:#ffaa00;" onclick="showTab('notify',document.querySelector('[onclick*=notify]'))">Send Notification</button>
+        <button class="btn btn-out" onclick="showTab('logs',document.querySelector('[onclick*=logs]'))">View Logs</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- USERS -->
+  <div class="tab-content" id="tab-users">
+    <div class="page-title">[ USERS ]</div>
+    <div class="page-sub">SIMAMIA WANACHAMA WA PLATFORM</div>
+    <div class="card" style="margin-bottom:14px;">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <input class="fld" style="flex:1;margin:0;max-width:280px;" placeholder="Tafuta user..." id="user-search" oninput="renderUsers()">
+        <select class="fld" style="width:140px;margin:0;" id="user-filter" onchange="renderUsers()">
+          <option value="all">Wote</option>
+          <option value="active">Active</option>
+          <option value="blocked">Blocked</option>
+          <option value="admin">Admin</option>
+        </select>
+        <button class="btn btn-c btn-sm" onclick="exportUsers()">⬇️ Export</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">👥 Registered Users</div>
+      <div class="tbl-wrap">
+        <table id="users-table">
+          <thead><tr>
+            <th>#</th><th>Jina</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="users-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- POSTS -->
+  <div class="tab-content" id="tab-posts">
+    <div class="page-title">[ POSTS ]</div>
+    <div class="page-sub">SIMAMIA POSTS ZA PLATFORM</div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+      <button class="btn btn-c btn-sm" onclick="renderAllPosts('all')" id="p-btn-all">All</button>
+      <button class="btn btn-sm btn-out" onclick="renderAllPosts('sanex')" id="p-btn-sanex">Sanex</button>
+      <button class="btn btn-sm" style="border:1px solid var(--g);color:var(--g);" onclick="renderAllPosts('grey')" id="p-btn-grey">Grey</button>
+    </div>
+    <div class="card">
+      <div class="card-title">📰 All Posts</div>
+      <div id="all-posts-list"></div>
+    </div>
+  </div>
+
+  <!-- TOOLS -->
+  <div class="tab-content" id="tab-tools">
+    <div class="page-title">[ TOOLS ]</div>
+    <div class="page-sub">ONGEZA AU SIMAMIA SOFTWARE TOOLS</div>
+    <!-- ADD TOOL FORM -->
+    <div class="card">
+      <div class="card-title">➕ Ongeza Tool Mpya</div>
+      <div class="tool-form-grid">
+        <div class="form-group">
+          <label>JINA LA TOOL</label>
+          <input class="fld" id="t-name" placeholder="e.g. Nmap Scanner">
+        </div>
+        <div class="form-group">
+          <label>CATEGORY</label>
+          <select class="fld" id="t-cat">
+            <option>Network</option><option>Web</option><option>Exploit</option>
+            <option>Forensics</option><option>OSINT</option><option>Wireless</option>
+            <option>Crypto</option><option>Password</option><option>Reverse</option>
+            <option>C2</option><option>Evasion</option><option>Phishing</option>
+            <option>Privacy</option><option>Windows</option><option>Recon</option>
+            <option>Custom</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ICON (EMOJI)</label>
+          <input class="fld" id="t-icon" placeholder="🛠️">
+        </div>
+        <div class="form-group">
+          <label>WEBSITE LINK</label>
+          <input class="fld" id="t-link" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label>DOWNLOAD LINK</label>
+          <input class="fld" id="t-dl" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label>LOCKED? (Premium)</label>
+          <select class="fld" id="t-locked"><option value="0">Hapana - Free</option><option value="1">Ndiyo - Locked</option></select>
+        </div>
+        <div class="form-group" style="grid-column:1/-1;">
+          <label>MAELEZO KAMILI</label>
+          <textarea class="fld" id="t-desc" placeholder="Eleza tool hii..."></textarea>
+        </div>
+        <div class="form-group" style="grid-column:1/-1;">
+          <label>PICHA YA TOOL (Upload)</label>
+          <input type="file" accept="image/*" id="t-img" style="color:var(--txt);font-size:12px;" onchange="previewToolImg()">
+          <img id="t-img-preview" class="img-preview">
+        </div>
+      </div>
+      <button class="btn btn-c" style="margin-top:10px;" onclick="addTool()">➕ ONGEZA TOOL</button>
+    </div>
+    <!-- TOOLS LIST -->
+    <div class="card">
+      <div class="card-title">🛠️ Custom Tools Zilizoongezwa</div>
+      <div id="custom-tools-list"></div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div class="tab-content" id="tab-notify">
+    <div class="page-title">[ NOTIFICATIONS ]</div>
+    <div class="page-sub">TUMA ARIFA KWA WANACHAMA</div>
+    <div class="card">
+      <div class="card-title">📢 Tuma Notification Mpya</div>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>KICHWA CHA ARIFA</label>
+        <input class="fld" id="n-title" placeholder="Mada ya notification...">
+      </div>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>UJUMBE</label>
+        <textarea class="fld" style="min-height:90px;" id="n-msg" placeholder="Andika ujumbe wa notification..."></textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label>AINA</label>
+        <select class="fld" id="n-type">
+          <option value="info">ℹ️ Info</option>
+          <option value="warning">⚠️ Warning</option>
+          <option value="success">✅ Success</option>
+          <option value="alert">🚨 Alert</option>
+          <option value="tool">🛠️ New Tool</option>
+        </select>
+      </div>
+      <button class="btn btn-p" onclick="sendNotif()">📢 TUMA KWA WOTE</button>
+    </div>
+    <!-- NOTIF HISTORY -->
+    <div class="card">
+      <div class="card-title">📋 Notifications Zilizotumwa</div>
+      <div id="notif-list"></div>
+    </div>
+  </div>
+
+  <!-- LOGS -->
+  <div class="tab-content" id="tab-logs">
+    <div class="page-title">[ ACTIVITY LOGS ]</div>
+    <div class="page-sub">SHUGHULI ZOTE ZA PLATFORM</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      <button class="btn btn-sm btn-out" onclick="filterLogs('all')">All</button>
+      <button class="btn btn-sm" style="border:1px solid var(--c);color:var(--c);" onclick="filterLogs('info')">Info</button>
+      <button class="btn btn-sm" style="border:1px solid #ffaa00;color:#ffaa00;" onclick="filterLogs('warn')">Warning</button>
+      <button class="btn btn-sm btn-r" onclick="filterLogs('err')">Error</button>
+      <button class="btn btn-sm btn-g" onclick="filterLogs('ok')">Success</button>
+      <button class="btn btn-sm" style="background:rgba(255,0,64,.15);border:1px solid var(--red);color:var(--red);margin-left:auto;" onclick="clearLogs()">🗑️ Clear</button>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div id="logs-list" style="max-height:500px;overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="tab-content" id="tab-settings">
+    <div class="page-title">[ SETTINGS ]</div>
+    <div class="page-sub">MIPANGILIO YA ADMIN PANEL</div>
+    <div class="card">
+      <div class="card-title">🔐 Badilisha Admin Password</div>
+      <input class="fld" type="password" id="s-old" placeholder="Password ya zamani">
+      <input class="fld" type="password" id="s-new" placeholder="Password mpya">
+      <input class="fld" type="password" id="s-new2" placeholder="Rudia password mpya">
+      <button class="btn btn-c" onclick="changePass()">SAVE PASSWORD</button>
+    </div>
+    <div class="card">
+      <div class="card-title">🌐 Platform Info</div>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>JINA LA WEBSITE</label>
+        <input class="fld" id="s-sitename" value="Sanexno" placeholder="Sanexno">
+      </div>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>TELEGRAM CHANNEL (SANEX)</label>
+        <input class="fld" id="s-tg-sanex" value="https://t.me/sanexno" placeholder="https://t.me/...">
+      </div>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>TELEGRAM CHANNEL (GVENOX)</label>
+        <input class="fld" id="s-tg-gvenox" value="https://t.me/gvenox" placeholder="https://t.me/...">
+      </div>
+      <button class="btn btn-c" onclick="saveSettings()">SAVE SETTINGS</button>
+    </div>
+    <div class="card">
+      <div class="card-title">🗑️ Danger Zone</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-r" onclick="clearAllPosts()">Delete All Posts</button>
+        <button class="btn btn-r" onclick="clearAllUsers()">Delete All Users</button>
+        <button class="btn btn-r" onclick="clearAllTools()">Delete Custom Tools</button>
+        <button class="btn btn-r" onclick="resetAll()">⚠️ Reset Everything</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- USER EDIT MODAL -->
+<div class="modal-ov" id="editUserModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('editUserModal')">×</button>
+    <div class="modal-title">✏️ EDIT USER</div>
+    <input type="hidden" id="eu-id">
+    <div class="form-group" style="margin-bottom:10px;">
+      <label>JINA</label>
+      <input class="fld" id="eu-name">
+    </div>
+    <div class="form-group" style="margin-bottom:10px;">
+      <label>EMAIL</label>
+      <input class="fld" id="eu-email">
+    </div>
+    <div class="form-group" style="margin-bottom:10px;">
+      <label>ROLE</label>
+      <select class="fld" id="eu-role">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label>STATUS</label>
+      <select class="fld" id="eu-status">
+        <option value="active">Active</option>
+        <option value="blocked">Blocked</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-c" onclick="saveUserEdit()">SAVE</button>
+      <button class="btn" style="border:1px solid var(--gb);color:var(--g);" onclick="closeModal('editUserModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== ADMIN CREDENTIALS =====
+const ADMIN_CREDS={email:'admin@sanexno.com',pass:'Sanex@Admin2025'};
+
+// ===== LOGIN =====
+function adminLogin(){
+  const e=document.getElementById('adm-email').value.trim();
+  const p=document.getElementById('adm-pass').value;
+  const saved=JSON.parse(localStorage.getItem('snx_admin_creds')||'null')||ADMIN_CREDS;
+  if(e===saved.email&&p===saved.pass){
+    localStorage.setItem('snx_admin_logged','1');
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('main-panel').style.display='block';
+    document.getElementById('sb-admin-name').textContent=e.split('@')[0];
+    initDashboard();
+    addLog('ok','Admin login: '+e);
+    startClock();
+  } else {
+    document.getElementById('ls-err').style.display='block';
+    addLog('err','Failed login attempt: '+e);
+  }
+}
+function adminLogout(){
+  localStorage.removeItem('snx_admin_logged');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('main-panel').style.display='none';
+  addLog('warn','Admin logged out');
+}
+// Auto-check session
+if(localStorage.getItem('snx_admin_logged')==='1'){
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('main-panel').style.display='block';
+  const saved=JSON.parse(localStorage.getItem('snx_admin_creds')||'null')||ADMIN_CREDS;
+  document.getElementById('sb-admin-name').textContent=saved.email.split('@')[0];
+  setTimeout(()=>{initDashboard();startClock();},100);
+}
+
+// ===== CLOCK =====
+function startClock(){
+  updateClock();setInterval(updateClock,1000);
+}
+function updateClock(){
+  const now=new Date();
+  const d=document.getElementById('dash-date');
+  const t=document.getElementById('dash-time');
+  if(d)d.textContent=now.toLocaleDateString('sw-KE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  if(t)t.textContent=now.toLocaleTimeString('sw-KE');
+}
+
+// ===== TABS =====
+function showTab(id,el){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  // refresh data
+  if(id==='dashboard')initDashboard();
+  if(id==='users')renderUsers();
+  if(id==='posts')renderAllPosts('all');
+  if(id==='tools')renderCustomTools();
+  if(id==='notify')renderNotifs();
+  if(id==='logs')renderLogs();
+  // mobile close
+  document.getElementById('sidebar').classList.remove('open');
+}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
+
+// ===== DASHBOARD =====
+function initDashboard(){
+  const users=getUsers();
+  const sPosts=JSON.parse(localStorage.getItem('snx_sposts')||'[]');
+  const gPosts=JSON.parse(localStorage.getItem('snx_gposts')||'[]');
+  const cTools=JSON.parse(localStorage.getItem('snx_tools_custom')||'[]');
+  const notifs=JSON.parse(localStorage.getItem('snx_notifs')||'[]');
+  const blocked=users.filter(u=>u.blocked).length;
+  document.getElementById('st-users').textContent=users.length;
+  document.getElementById('st-blocked').textContent=blocked;
+  document.getElementById('st-posts').textContent=sPosts.length+gPosts.length;
+  document.getElementById('st-tools').textContent=50+cTools.length;
+  document.getElementById('st-notifs').textContent=notifs.length;
+  // recent activity
+  const logs=JSON.parse(localStorage.getItem('snx_logs')||'[]');
+  const ra=document.getElementById('recent-activity');
+  if(!logs.length){ra.innerHTML='<p style="opacity:.35;font-size:12px;">Hakuna shughuli bado.</p>';return;}
+  ra.innerHTML=logs.slice(-8).reverse().map(l=>`
+    <div style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:10px;font-size:12px;">
+      <span style="color:var(--pur);white-space:nowrap;font-family:'Share Tech Mono',monospace;">${l.time}</span>
+      <span style="color:${l.type==='ok'?'var(--grn)':l.type==='err'?'var(--red)':l.type==='warn'?'#ffaa00':'var(--c)'};">[${l.type.toUpperCase()}]</span>
+      <span style="opacity:.7;">${esc(l.msg)}</span>
+    </div>`).join('');
+}
+
+// ===== USERS =====
+function getUsers(){return JSON.parse(localStorage.getItem('snx_users')||'[]');}
+function saveUsers(u){localStorage.setItem('snx_users',JSON.stringify(u));}
+function renderUsers(){
+  const users=getUsers();
+  const q=(document.getElementById('user-search').value||'').toLowerCase();
+  const f=document.getElementById('user-filter').value;
+  let filtered=users.filter(u=>{
+    const match=!q||(u.name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q);
+    const status=f==='all'||(f==='blocked'&&u.blocked)||(f==='active'&&!u.blocked)||(f==='admin'&&u.role==='admin');
+    return match&&status;
+  });
+  const tb=document.getElementById('users-tbody');
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;opacity:.35;padding:25px;">Hakuna users zilizopatikana.</td></tr>';return;}
+  tb.innerHTML=filtered.map((u,i)=>`
+    <tr>
+      <td style="opacity:.4;">${i+1}</td>
+      <td><strong>${esc(u.name||'—')}</strong></td>
+      <td style="opacity:.65;">${esc(u.email||'—')}</td>
+      <td><span class="badge ${u.role==='admin'?'badge-admin':'badge-user'}">${u.role||'user'}</span></td>
+      <td><span class="badge ${u.blocked?'badge-blocked':'badge-active'}">${u.blocked?'Blocked':'Active'}</span></td>
+      <td style="opacity:.45;font-size:11px;">${u.joined||'—'}</td>
+      <td>
+        <div class="act-btns">
+          <button class="btn btn-sm btn-out" onclick="editUser(${u.id})">✏️</button>
+          <button class="btn btn-sm ${u.blocked?'btn-g':'btn-r'}" onclick="toggleBlock(${u.id})">${u.blocked?'Unblock':'Block'}</button>
+          <button class="btn btn-sm btn-r" onclick="deleteUser(${u.id})">🗑️</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+function toggleBlock(id){
+  const users=getUsers();
+  const u=users.find(x=>x.id===id);
+  if(!u)return;
+  u.blocked=!u.blocked;
+  saveUsers(users);
+  addLog(u.blocked?'warn':'ok',(u.blocked?'Blocked':'Unblocked')+' user: '+u.email);
+  renderUsers();
+  showToast(u.blocked?`User ${u.name} amezuiwa.`:`User ${u.name} amefunguliwa.`,u.blocked?'err':'ok');
+}
+function deleteUser(id){
+  if(!confirm('Futa user huyu kabisa?'))return;
+  const users=getUsers().filter(x=>x.id!==id);
+  saveUsers(users);
+  addLog('warn','Deleted user ID: '+id);
+  renderUsers();
+  showToast('User amefutwa.','ok');
+}
+function editUser(id){
+  const u=getUsers().find(x=>x.id===id);
+  if(!u)return;
+  document.getElementById('eu-id').value=id;
+  document.getElementById('eu-name').value=u.name||'';
+  document.getElementById('eu-email').value=u.email||'';
+  document.getElementById('eu-role').value=u.role||'user';
+  document.getElementById('eu-status').value=u.blocked?'blocked':'active';
+  openModal('editUserModal');
+}
+function saveUserEdit(){
+  const id=parseInt(document.getElementById('eu-id').value);
+  const users=getUsers();
+  const u=users.find(x=>x.id===id);
+  if(!u)return;
+  u.name=document.getElementById('eu-name').value.trim();
+  u.email=document.getElementById('eu-email').value.trim();
+  u.role=document.getElementById('eu-role').value;
+  u.blocked=document.getElementById('eu-status').value==='blocked';
+  saveUsers(users);
+  addLog('ok','Updated user: '+u.email);
+  closeModal('editUserModal');
+  renderUsers();
+  showToast('User imesasishwa!','ok');
+}
+function exportUsers(){
+  const users=getUsers();
+  const csv='ID,Name,Email,Role,Status,Joined\n'+users.map(u=>`${u.id},"${u.name}","${u.email}","${u.role||'user'}","${u.blocked?'Blocked':'Active'}","${u.joined||''}"`).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='sanexno_users.csv';a.click();
+  showToast('Users exported!','ok');
+}
+
+// ===== POSTS =====
+function renderAllPosts(filter='all'){
+  const sp=JSON.parse(localStorage.getItem('snx_sposts')||'[]');
+  const gp=JSON.parse(localStorage.getItem('snx_gposts')||'[]');
+  let posts=[];
+  if(filter==='all'||filter==='sanex')posts=[...posts,...sp.map(p=>({...p,side:'sanex'}))];
+  if(filter==='all'||filter==='grey')posts=[...posts,...gp.map(p=>({...p,side:'grey'}))];
+  posts.sort((a,b)=>b.id-a.id);
+  const el=document.getElementById('all-posts-list');
+  if(!posts.length){el.innerHTML='<p style="opacity:.35;text-align:center;padding:20px;font-size:13px;">Hakuna posts.</p>';return;}
+  el.innerHTML=posts.map(p=>`
+    <div style="background:rgba(0,0,0,.25);border:1px solid var(--gb);border-radius:10px;padding:14px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">
+        <div style="flex:1;">
+          <span class="badge ${p.side==='sanex'?'badge-admin':'badge-user'}" style="margin-bottom:8px;">${p.side.toUpperCase()}</span>
+          <div style="font-size:13px;margin:6px 0;">${esc(p.txt||'')}</div>
+          ${p.img?`<img src="${p.img}" style="max-width:100%;max-height:100px;border-radius:6px;margin-top:6px;">`:''}
+          <div style="font-size:11px;opacity:.4;margin-top:6px;">👤 ${esc(p.author)} · ${p.time} · 💬 ${p.comments?p.comments.length:0} comments</div>
+        </div>
+        <button class="btn btn-r btn-sm" onclick="deletePost('${p.side}',${p.id})">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+function deletePost(side,id){
+  if(!confirm('Futa post hii?'))return;
+  const key=side==='sanex'?'snx_sposts':'snx_gposts';
+  const posts=JSON.parse(localStorage.getItem(key)||'[]').filter(p=>p.id!==id);
+  localStorage.setItem(key,JSON.stringify(posts));
+  addLog('warn',`Deleted post ID ${id} from ${side}`);
+  renderAllPosts('all');
+  showToast('Post imefutwa.','ok');
+}
+
+// ===== TOOLS =====
+let toolImgData=null;
+function previewToolImg(){
+  const f=document.getElementById('t-img').files[0];
+  if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{toolImgData=e.target.result;const p=document.getElementById('t-img-preview');p.src=e.target.result;p.style.display='block';};
+  r.readAsDataURL(f);
+}
+function addTool(){
+  const name=document.getElementById('t-name').value.trim();
+  const cat=document.getElementById('t-cat').value;
+  const icon=document.getElementById('t-icon').value.trim()||'🛠️';
+  const desc=document.getElementById('t-desc').value.trim();
+  const link=document.getElementById('t-link').value.trim()||'#';
+  const dl=document.getElementById('t-dl').value.trim()||'#';
+  const locked=document.getElementById('t-locked').value==='1';
+  if(!name||!desc){showToast('Jaza jina na maelezo!','err');return;}
+  const tools=JSON.parse(localStorage.getItem('snx_tools_custom')||'[]');
+  const t={id:Date.now(),name,cat,icon,desc,link,download:dl,locked,image:toolImgData,addedBy:'Admin',addedAt:new Date().toLocaleDateString()};
+  tools.push(t);
+  localStorage.setItem('snx_tools_custom',JSON.stringify(tools));
+  addLog('ok','Added new tool: '+name);
+  renderCustomTools();
+  // Reset form
+  ['t-name','t-desc','t-link','t-dl','t-icon'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('t-img').value='';
+  document.getElementById('t-img-preview').style.display='none';
+  toolImgData=null;
+  showToast('Tool "'+name+'" imeongezwa!','ok');
+}
+function renderCustomTools(){
+  const tools=JSON.parse(localStorage.getItem('snx_tools_custom')||'[]');
+  const el=document.getElementById('custom-tools-list');
+  if(!tools.length){el.innerHTML='<p style="opacity:.35;font-size:13px;text-align:center;padding:20px;">Hakuna custom tools bado. Ongeza moja!</p>';return;}
+  el.innerHTML=tools.map(t=>`
+    <div style="background:rgba(0,0,0,.25);border:1px solid var(--gb);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+      ${t.image?`<img src="${t.image}" style="width:60px;height:60px;border-radius:8px;object-fit:cover;">`:`<div style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(0,240,255,.06);border-radius:8px;">${t.icon}</div>`}
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:14px;">${esc(t.name)} <span class="badge badge-user">${t.cat}</span> ${t.locked?'<span class="badge badge-blocked">🔒 Locked</span>':''}</div>
+        <div style="font-size:12px;opacity:.55;margin-top:4px;">${esc(t.desc)}</div>
+        <div style="font-size:11px;opacity:.35;margin-top:5px;">Added by ${t.addedBy} · ${t.addedAt}</div>
+      </div>
+      <button class="btn btn-r btn-sm" onclick="deleteTool(${t.id})">🗑️ Futa</button>
+    </div>`).join('');
+}
+function deleteTool(id){
+  if(!confirm('Futa tool hii?'))return;
+  const tools=JSON.parse(localStorage.getItem('snx_tools_custom')||'[]').filter(t=>t.id!==id);
+  localStorage.setItem('snx_tools_custom',JSON.stringify(tools));
+  addLog('warn','Deleted custom tool ID: '+id);
+  renderCustomTools();
+  showToast('Tool imefutwa.','ok');
+}
+
+// ===== NOTIFICATIONS =====
+function sendNotif(){
+  const title=document.getElementById('n-title').value.trim();
+  const msg=document.getElementById('n-msg').value.trim();
+  const type=document.getElementById('n-type').value;
+  if(!title||!msg){showToast('Jaza kichwa na ujumbe!','err');return;}
+  const notifs=JSON.parse(localStorage.getItem('snx_notifs')||'[]');
+  notifs.unshift({id:Date.now(),title,msg,type,time:new Date().toLocaleString(),sentBy:'Admin'});
+  localStorage.setItem('snx_notifs',JSON.stringify(notifs));
+  addLog('ok','Notification sent: '+title);
+  document.getElementById('n-title').value='';
+  document.getElementById('n-msg').value='';
+  renderNotifs();
+  showToast('Notification imetumwa!','ok');
+}
+function renderNotifs(){
+  const notifs=JSON.parse(localStorage.getItem('snx_notifs')||'[]');
+  const el=document.getElementById('notif-list');
+  if(!notifs.length){el.innerHTML='<p style="opacity:.35;font-size:13px;text-align:center;padding:20px;">Hakuna notifications bado.</p>';return;}
+  const icons={info:'ℹ️',warning:'⚠️',success:'✅',alert:'🚨',tool:'🛠️'};
+  el.innerHTML=notifs.map(n=>`
+    <div class="notif-item">
+      <div>
+        <div style="font-weight:700;font-size:13px;">${icons[n.type]||'📢'} ${esc(n.title)}</div>
+        <div style="font-size:12px;opacity:.6;margin-top:4px;">${esc(n.msg)}</div>
+        <div class="notif-meta">${n.time} · ${n.sentBy}</div>
+      </div>
+      <button class="btn btn-r btn-sm" onclick="deleteNotif(${n.id})">🗑️</button>
+    </div>`).join('');
+}
+function deleteNotif(id){
+  const n=JSON.parse(localStorage.getItem('snx_notifs')||'[]').filter(x=>x.id!==id);
+  localStorage.setItem('snx_notifs',JSON.stringify(n));
+  renderNotifs();showToast('Notification imefutwa.','ok');
+}
+
+// ===== LOGS =====
+let currentLogFilter='all';
+function addLog(type,msg){
+  const logs=JSON.parse(localStorage.getItem('snx_logs')||'[]');
+  logs.push({type,msg,time:new Date().toLocaleTimeString()});
+  if(logs.length>200)logs.shift();
+  localStorage.setItem('snx_logs',JSON.stringify(logs));
+}
+function filterLogs(f){currentLogFilter=f;renderLogs();}
+function renderLogs(){
+  const logs=JSON.parse(localStorage.getItem('snx_logs')||'[]');
+  const filtered=currentLogFilter==='all'?logs:logs.filter(l=>l.type===currentLogFilter);
+  const el=document.getElementById('logs-list');
+  if(!filtered.length){el.innerHTML='<div style="padding:20px;text-align:center;opacity:.35;font-size:13px;">Hakuna logs.</div>';return;}
+  el.innerHTML=[...filtered].reverse().map(l=>`
+    <div class="log-item">
+      <span class="log-time">${l.time}</span>
+      <span class="log-type ${l.type}">[${l.type.toUpperCase()}]</span>
+      <span class="log-msg">${esc(l.msg)}</span>
+    </div>`).join('');
+}
+function clearLogs(){
+  if(!confirm('Futa logs zote?'))return;
+  localStorage.removeItem('snx_logs');
+  renderLogs();showToast('Logs zimefutwa.','ok');
+}
+
+// ===== SETTINGS =====
+function changePass(){
+  const o=document.getElementById('s-old').value;
+  const n=document.getElementById('s-new').value;
+  const n2=document.getElementById('s-new2').value;
+  const saved=JSON.parse(localStorage.getItem('snx_admin_creds')||'null')||ADMIN_CREDS;
+  if(o!==saved.pass){showToast('Password ya zamani si sahihi!','err');return;}
+  if(n!==n2){showToast('Password mpya hazilingani!','err');return;}
+  if(n.length<8){showToast('Password lazima iwe na herufi 8+!','err');return;}
+  localStorage.setItem('snx_admin_creds',JSON.stringify({email:saved.email,pass:n}));
+  ['s-old','s-new','s-new2'].forEach(id=>document.getElementById(id).value='');
+  addLog('ok','Admin password changed');
+  showToast('Password imebadilishwa!','ok');
+}
+function saveSettings(){
+  const s={sitename:document.getElementById('s-sitename').value,tg_sanex:document.getElementById('s-tg-sanex').value,tg_gvenox:document.getElementById('s-tg-gvenox').value};
+  localStorage.setItem('snx_settings',JSON.stringify(s));
+  addLog('ok','Settings saved');
+  showToast('Settings zimehifadhiwa!','ok');
+}
+function clearAllPosts(){if(!confirm('Futa posts ZOTE?'))return;localStorage.removeItem('snx_sposts');localStorage.removeItem('snx_gposts');addLog('warn','All posts cleared');showToast('Posts zote zimefutwa.','ok');}
+function clearAllUsers(){if(!confirm('Futa users WOTE?'))return;localStorage.removeItem('snx_users');addLog('warn','All users cleared');renderUsers();showToast('Users wote wamefutwa.','ok');}
+function clearAllTools(){if(!confirm('Futa custom tools zote?'))return;localStorage.removeItem('snx_tools_custom');addLog('warn','All custom tools cleared');renderCustomTools();showToast('Custom tools zimefutwa.','ok');}
+function resetAll(){
+  if(!confirm('⚠️ Reset KILA KITU? Hii haiwezi kurudishwa!'))return;
+  ['snx_users','snx_sposts','snx_gposts','snx_tools_custom','snx_notifs','snx_logs'].forEach(k=>localStorage.removeItem(k));
+  addLog('warn','Full platform reset performed');
+  initDashboard();showToast('Reset imefanyika.','ok');
+}
+
+// ===== MODAL HELPERS =====
+function openModal(id){document.getElementById(id).classList.add('active');}
+function closeModal(id){document.getElementById(id).classList.remove('active');}
+document.querySelectorAll('.modal-ov').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('active');}));
+
+// ===== TOAST =====
+function showToast(msg,type='info'){
+  const t=document.createElement('div');
+  t.className='toast '+(type==='err'?'err':type==='ok'?'ok':'');
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3200);
+}
+
+// ===== ESC =====
+function esc(t){if(!t)return'';const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+
+// Init logs on first load
+addLog('info','Admin panel session started');
+</script>
+</body>
+</html>
